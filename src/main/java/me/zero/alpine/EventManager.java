@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of {@code EventBus}
+ * Default implementation of {@code EventBus}
  *
  * @author Brady
  * @since 1/19/2017 12:00 PM
@@ -28,10 +28,12 @@ public final class EventManager implements EventBus {
     private final Map<Class<?>, List<Listener>> SUBSCRIPTION_MAP = new HashMap<>();
 
     /**
+     * Holds the list of attached event buses
+     */
+    private final List<EventBus> ATTACHED_BUSES = new ArrayList<>();
+
+    /**
      * Buffer used while making modifications to {@code SUBSCRIPTION_MAP}
-     *
-     * @see #subscribe(Object)
-     * @see #unsubscribe(Object)
      */
     private final List<Listener> eventBuffer = new ArrayList<>();
 
@@ -45,6 +47,10 @@ public final class EventManager implements EventBus {
                         .collect(Collectors.toList()));
 
         listeners.forEach(this::subscribe);
+
+        // Invoke child event buses
+        if (!ATTACHED_BUSES.isEmpty())
+            ATTACHED_BUSES.forEach(bus -> bus.subscribe(object));
     }
 
     @Override
@@ -68,6 +74,10 @@ public final class EventManager implements EventBus {
                         .filter(listener -> !listeners.contains(listener))
                         .collect(Collectors.toList())
         ));
+
+        // Invoke child event buses
+        if (!ATTACHED_BUSES.isEmpty())
+            ATTACHED_BUSES.forEach(bus -> bus.unsubscribe(object));
     }
 
     @Override
@@ -86,6 +96,22 @@ public final class EventManager implements EventBus {
         List<Listener> listeners = SUBSCRIPTION_MAP.get(event.getClass());
         if (listeners != null)
             listeners.forEach(listener -> listener.invoke(event));
+
+        // Invoke child event buses
+        if (!ATTACHED_BUSES.isEmpty())
+            ATTACHED_BUSES.forEach(bus -> bus.post(event));
+    }
+
+    @Override
+    public void attach(EventBus bus) {
+        if (!ATTACHED_BUSES.contains(bus))
+            ATTACHED_BUSES.add(bus);
+    }
+
+    @Override
+    public void detach(EventBus bus) {
+        if (ATTACHED_BUSES.contains(bus))
+            ATTACHED_BUSES.remove(bus);
     }
 
     /**

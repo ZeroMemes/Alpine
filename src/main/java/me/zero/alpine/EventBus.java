@@ -83,4 +83,27 @@ public interface EventBus {
      * @param event Event being called
      */
     void post(Object event);
+
+    /**
+     * Attaches another event bus onto this event bus.
+     * Simple way of hooking in external event buses.
+     * In applications with a central EventBus, this allows
+     * users making extensions to applications to use
+     * their own event bus, as long as it implements
+     * {@code EventBus}. Actions being carried out should
+     * prioritize the parent EventBus.
+     *
+     * @param bus Other EventBus
+     * @see EventBus#detach(EventBus)
+     */
+    void attach(EventBus bus);
+
+    /**
+     * Detaches another event bus that has already
+     * been attached to this event bus.
+     *
+     * @param bus Other EventBus
+     * @see EventBus#attach(EventBus)
+     */
+    void detach(EventBus bus);
 }
