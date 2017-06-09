@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @author Brady
  * @since 1/19/2017 12:00 PM
  */
-public final class EventManager implements EventBus {
+public class EventManager implements EventBus {
 
     /**
      * Map containing all Listeners for objects, this is used to prevent
