@@ -3,7 +3,10 @@ version '1.4'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = targetCompatibility = 1.8
+compileJava {
+    sourceCompatibility = targetCompatibility = 1.8
+}
 
 repositories {
     mavenCentral()
