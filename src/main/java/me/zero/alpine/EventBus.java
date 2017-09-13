@@ -2,8 +2,6 @@ package me.zero.alpine;
 
 import me.zero.alpine.listener.Listener;
 
-import java.util.List;
-
 /**
  * An Event Bus is used to manage the flow of events.
  * Objects can be subscribed to the EventBus to be used
@@ -43,7 +41,7 @@ public interface EventBus {
      *
      * @param objects The list of objects
      */
-    void subscribe(List<Object> objects);
+    void subscribe(Iterable<Object> objects);
 
     /**
      * Unsubscribes an object from the listener map
@@ -72,7 +70,7 @@ public interface EventBus {
      *
      * @param objects The list of objects
      */
-    void unsubscribe(List<Object> objects);
+    void unsubscribe(Iterable<Object> objects);
 
     /**
      * Posts an event to all registered {@code Listeners}.

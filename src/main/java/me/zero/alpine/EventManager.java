@@ -32,11 +32,6 @@ public class EventManager implements EventBus {
      */
     private final List<EventBus> ATTACHED_BUSES = new ArrayList<>();
 
-    /**
-     * Buffer used while making modifications to {@code SUBSCRIPTION_MAP}
-     */
-    private final List<Listener> eventBuffer = new ArrayList<>();
-
     @Override
     public void subscribe(Object object) {
         List<Listener> listeners = SUBSCRIPTION_CACHE.computeIfAbsent(object, o ->
@@ -59,21 +54,17 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void subscribe(List<Object> objects) {
+    public void subscribe(Iterable<Object> objects) {
         objects.forEach(this::subscribe);
     }
 
     @Override
     public void unsubscribe(Object object) {
-        List<Listener> listeners = SUBSCRIPTION_CACHE.get(object);
-        if (listeners == null)
+        List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(object);
+        if (objectListeners == null)
             return;
 
-        SUBSCRIPTION_MAP.keySet().forEach(eventClass -> SUBSCRIPTION_MAP.put(eventClass,
-                SUBSCRIPTION_MAP.get(eventClass).stream()
-                        .filter(listener -> !listeners.contains(listener))
-                        .collect(Collectors.toList())
-        ));
+        SUBSCRIPTION_MAP.values().forEach(listeners -> listeners.removeIf(objectListeners::contains));
 
         // Invoke child event buses
         if (!ATTACHED_BUSES.isEmpty())
@@ -86,7 +77,7 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void unsubscribe(List<Object> objects) {
+    public void unsubscribe(Iterable<Object> objects) {
         objects.forEach(this::unsubscribe);
     }
 
@@ -163,20 +154,15 @@ public class EventManager implements EventBus {
      * @param listener The listener being registered
      */
     private void subscribe(Listener listener) {
-        eventBuffer.clear();
-
-        List<Listener> listeners = SUBSCRIPTION_MAP.get(listener.getTarget());
-        if (listeners != null && listeners.size() > 0)
-            eventBuffer.addAll(listeners);
+        List<Listener> listeners = SUBSCRIPTION_MAP.computeIfAbsent(listener.getTarget(), target -> new ArrayList<>());
 
         int index = 0;
-        for (; index < eventBuffer.size(); index++) {
-            if (listener.getPriority() < eventBuffer.get(index).getPriority()) {
+        for (; index < listeners.size(); index++) {
+            if (listener.getPriority() < listeners.get(index).getPriority()) {
                 break;
             }
         }
 
-        eventBuffer.add(index, listener);
-        SUBSCRIPTION_MAP.put(listener.getTarget(), new ArrayList<>(eventBuffer));
+        listeners.add(index, listener);
     }
 }
