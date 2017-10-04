@@ -6,7 +6,9 @@ import net.jodah.typetools.TypeResolver;
 import java.util.function.Predicate;
 
 /**
- * Used to contain event method data
+ * Used to contain event method data.
+ *
+ * @param <T> Target event type
  *
  * @author Brady
  * @since 1/21/2017 12:00 PM
