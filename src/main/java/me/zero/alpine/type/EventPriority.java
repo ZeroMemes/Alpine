@@ -1,7 +1,10 @@
 package me.zero.alpine.type;
 
 /**
- * Contains all of the Event Priorities.
+ * Contains all of the default {@code Listener} Priorities.
+ * Priorities are used to define the order in which a {@code Listener}
+ * will be called, relative to other listeners. By default, a Listener
+ * will have the {@code MEDIUM} priority level.
  *
  * @author Brady
  * @since 1/21/2017 12:00 PM

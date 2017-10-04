@@ -16,23 +16,24 @@ import java.util.function.Predicate;
 public final class Listener<T> implements EventHook<T> {
 
     /**
-     * Class representation of the Event being
-     * listened for.
+     * The target event class.
      */
     private final Class<T> target;
 
     /**
-     * The hook for this Listener
+     * The "body" of this {@code Listener}
      */
     private final EventHook<T> hook;
 
     /**
-     * Event filters
+     * Filters to be run on all of the events passed to this {@code Listener}
      */
     private final Predicate<T>[] filters;
 
     /**
-     * Priority of Listener
+     * Priority of this {@code Listener}
+     *
+     * @see EventPriority
      */
     private final byte priority;
 
@@ -51,13 +52,23 @@ public final class Listener<T> implements EventHook<T> {
     }
 
     /**
-     * @return The class of T
+     * Returns the target event class, represented
+     * by the {@code <T>} class parameter.
+     *
+     * @return The target event class
      */
     public final Class<T> getTarget() {
         return this.target;
     }
 
     /**
+     * Returns the priority of this listener. The priority
+     * is used to determine the order of listener invocations
+     * for a given event. The return value is limited by the
+     * {@code HIGHEST} and {@code LOWEST} values of {@code EventPriority}.
+     *
+     * @see EventPriority
+     *
      * @return Priority of Listener
      */
     public final byte getPriority() {
@@ -65,16 +76,19 @@ public final class Listener<T> implements EventHook<T> {
     }
 
     /**
-     * Invokes the method that corresponds
-     * with this Listener.
+     * Passes the event to this Listener's body after
+     * all of the filters have passed their checks.
+     *
+     * @see EventHook
      *
      * @param event Event being called
      */
     @Override
     public final void invoke(T event) {
-        for (Predicate<T> filter : filters)
-            if (!filter.test(event))
-                return;
+        if (filters.length > 0)
+            for (Predicate<T> filter : filters)
+                if (!filter.test(event))
+                    return;
 
         this.hook.invoke(event);
     }
