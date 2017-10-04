@@ -32,10 +32,10 @@ Classes containing static listeners may not be subscribed to the EventBus.
 ```Java
 public class Main {
     
-    public static void main(String[] args){
-      EventProcessor processor = new EventProcessor();
-      Core.EVENT_BUS.subscribe(processor);
-      Core.EVENT_BUS.post("Test");
+    public static void main(String[] args) {
+        EventProcessor processor = new EventProcessor();
+        Core.EVENT_BUS.subscribe(processor);
+        Core.EVENT_BUS.post("Test");
     }
 }
 ```
