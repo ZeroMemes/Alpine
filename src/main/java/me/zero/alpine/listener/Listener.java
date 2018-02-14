@@ -6,7 +6,7 @@ import net.jodah.typetools.TypeResolver;
 import java.util.function.Predicate;
 
 /**
- * Used to contain event method data.
+ * Used to define new EventHooks.
  *
  * @param <T> Target event type
  *
