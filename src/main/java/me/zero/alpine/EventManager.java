@@ -6,6 +6,8 @@ import me.zero.alpine.type.EventPriority;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -20,12 +22,12 @@ public class EventManager implements EventBus {
      * Map containing all Listeners for objects, this is used to prevent
      * reflection calls when subscribing/unsubscribing
      */
-    private final Map<Object, List<Listener>> SUBSCRIPTION_CACHE = new HashMap<>();
+    private final Map<Object, List<Listener>> SUBSCRIPTION_CACHE = new ConcurrentHashMap<>();
 
     /**
      * Map containing all event classes and their corresponding listeners
      */
-    private final Map<Class<?>, List<Listener>> SUBSCRIPTION_MAP = new HashMap<>();
+    private final Map<Class<?>, List<Listener>> SUBSCRIPTION_MAP = new ConcurrentHashMap<>();
 
     /**
      * Holds the list of attached event buses
@@ -154,7 +156,7 @@ public class EventManager implements EventBus {
      * @param listener The listener being registered
      */
     private void subscribe(Listener listener) {
-        List<Listener> listeners = SUBSCRIPTION_MAP.computeIfAbsent(listener.getTarget(), target -> new ArrayList<>());
+        List<Listener> listeners = SUBSCRIPTION_MAP.computeIfAbsent(listener.getTarget(), target -> new CopyOnWriteArrayList<>());
 
         int index = 0;
         for (; index < listeners.size(); index++) {
