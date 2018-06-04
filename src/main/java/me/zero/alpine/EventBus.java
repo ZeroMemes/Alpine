@@ -31,7 +31,7 @@ public interface EventBus {
      *
      * @param objects The array of objects
      */
-    void subscribe(Object... objects);
+    void subscribeAll(Object... objects);
 
     /**
      * Subscribes all elements from a list
@@ -41,7 +41,7 @@ public interface EventBus {
      *
      * @param objects The list of objects
      */
-    void subscribe(Iterable<Object> objects);
+    void subscribeAll(Iterable<Object> objects);
 
     /**
      * Unsubscribes an object from the listener map
@@ -60,7 +60,7 @@ public interface EventBus {
      *
      * @param objects The array of objects
      */
-    void unsubscribe(Object... objects);
+    void unsubscribeAll(Object... objects);
 
     /**
      * Unsubscribes all elements from a list
@@ -70,11 +70,11 @@ public interface EventBus {
      *
      * @param objects The list of objects
      */
-    void unsubscribe(Iterable<Object> objects);
+    void unsubscribeAll(Iterable<Object> objects);
 
     /**
      * Posts an event to all registered {@code Listeners}.
-     * Done via Reflection Method Invokation
+     * Done via Reflection Method Invocation
      *
      * @see Listener#invoke(Object)
      *

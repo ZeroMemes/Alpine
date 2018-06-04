@@ -51,12 +51,12 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void subscribe(Object... objects) {
+    public void subscribeAll(Object... objects) {
         Arrays.stream(objects).forEach(this::subscribe);
     }
 
     @Override
-    public void subscribe(Iterable<Object> objects) {
+    public void subscribeAll(Iterable<Object> objects) {
         objects.forEach(this::subscribe);
     }
 
@@ -74,12 +74,12 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void unsubscribe(Object... objects) {
+    public void unsubscribeAll(Object... objects) {
         Arrays.stream(objects).forEach(this::unsubscribe);
     }
 
     @Override
-    public void unsubscribe(Iterable<Object> objects) {
+    public void unsubscribeAll(Iterable<Object> objects) {
         objects.forEach(this::unsubscribe);
     }
 
