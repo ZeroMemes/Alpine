@@ -1,8 +1,9 @@
-package me.zero.alpine;
+package me.zero.alpine.bus;
 
 import me.zero.alpine.listener.EventHandler;
+import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
-import me.zero.alpine.type.EventPriority;
+import me.zero.alpine.event.EventPriority;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -19,24 +20,20 @@ import java.util.stream.Collectors;
 public class EventManager implements EventBus {
 
     /**
-     * Map containing all Listeners for objects, this is used to prevent
-     * reflection calls when subscribing/unsubscribing
+     * Map containing all Listenable objects that have been previously subscribed and
+     * their associated Listener instances. This reduces the amount of reflection calls
+     * that would otherwise be required when subscribing a Listenable to the event bus.
      */
-    private final Map<Object, List<Listener>> SUBSCRIPTION_CACHE = new ConcurrentHashMap<>();
+    private final Map<Listenable, List<Listener>> SUBSCRIPTION_CACHE = new ConcurrentHashMap<>();
 
     /**
      * Map containing all event classes and their corresponding listeners
      */
     private final Map<Class<?>, List<Listener>> SUBSCRIPTION_MAP = new ConcurrentHashMap<>();
 
-    /**
-     * Holds the list of attached event buses
-     */
-    private final List<EventBus> ATTACHED_BUSES = new ArrayList<>();
-
     @Override
-    public void subscribe(Object object) {
-        List<Listener> listeners = SUBSCRIPTION_CACHE.computeIfAbsent(object, o ->
+    public void subscribe(Listenable listenable) {
+        List<Listener> listeners = SUBSCRIPTION_CACHE.computeIfAbsent(listenable, o ->
                 Arrays.stream(o.getClass().getDeclaredFields())
                         .filter(EventManager::isValidField)
                         .map(field -> asListener(o, field))
@@ -44,43 +41,54 @@ public class EventManager implements EventBus {
                         .collect(Collectors.toList()));
 
         listeners.forEach(this::subscribe);
-
-        // Invoke child event buses
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.subscribe(object));
     }
 
     @Override
-    public void subscribeAll(Object... objects) {
-        Arrays.stream(objects).forEach(this::subscribe);
+    public void subscribe(Listener listener) {
+        List<Listener> listeners = SUBSCRIPTION_MAP.computeIfAbsent(listener.getTarget(), target -> new CopyOnWriteArrayList<>());
+
+        int index = 0;
+        for (; index < listeners.size(); index++) {
+            if (listener.getPriority() < listeners.get(index).getPriority()) {
+                break;
+            }
+        }
+
+        listeners.add(index, listener);
     }
 
     @Override
-    public void subscribeAll(Iterable<Object> objects) {
-        objects.forEach(this::subscribe);
+    public void subscribeAll(Listenable... listenables) {
+        Arrays.stream(listenables).forEach(this::subscribe);
     }
 
     @Override
-    public void unsubscribe(Object object) {
-        List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(object);
+    public void subscribeAll(Iterable<Listenable> listenables) {
+        listenables.forEach(this::subscribe);
+    }
+
+    @Override
+    public void unsubscribe(Listenable listenable) {
+        List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(listenable);
         if (objectListeners == null)
             return;
 
         SUBSCRIPTION_MAP.values().forEach(listeners -> listeners.removeIf(objectListeners::contains));
-
-        // Invoke child event buses
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.unsubscribe(object));
     }
 
     @Override
-    public void unsubscribeAll(Object... objects) {
-        Arrays.stream(objects).forEach(this::unsubscribe);
+    public void unsubscribe(Listener listener) {
+        SUBSCRIPTION_MAP.get(listener.getTarget()).removeIf(l -> l.equals(listener));
     }
 
     @Override
-    public void unsubscribeAll(Iterable<Object> objects) {
-        objects.forEach(this::unsubscribe);
+    public void unsubscribeAll(Listenable... listenables) {
+        Arrays.stream(listenables).forEach(this::unsubscribe);
+    }
+
+    @Override
+    public void unsubscribeAll(Iterable<Listenable> listenables) {
+        listenables.forEach(this::unsubscribe);
     }
 
     @SuppressWarnings("unchecked")
@@ -89,22 +97,6 @@ public class EventManager implements EventBus {
         List<Listener> listeners = SUBSCRIPTION_MAP.get(event.getClass());
         if (listeners != null)
             listeners.forEach(listener -> listener.invoke(event));
-
-        // Invoke child event buses
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.post(event));
-    }
-
-    @Override
-    public void attach(EventBus bus) {
-        if (!ATTACHED_BUSES.contains(bus))
-            ATTACHED_BUSES.add(bus);
-    }
-
-    @Override
-    public void detach(EventBus bus) {
-        if (ATTACHED_BUSES.contains(bus))
-            ATTACHED_BUSES.remove(bus);
     }
 
     /**
@@ -128,14 +120,14 @@ public class EventManager implements EventBus {
      *
      * @see #subscribe(Listener)
      *
-     * @param object Parent object
+     * @param listenable Parent object
      * @param field Listener field
      */
-    private static Listener asListener(Object object, Field field) {
+    private static Listener asListener(Listenable listenable, Field field) {
         try {
             boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            Listener listener = (Listener) field.get(object);
+            Listener listener = (Listener) field.get(listenable);
             field.setAccessible(accessible);
 
             if (listener == null)
@@ -148,23 +140,5 @@ public class EventManager implements EventBus {
         } catch (IllegalAccessException e) {
             return null;
         }
-    }
-
-    /**
-     * Subscribes a Listener to the Subscription Map
-     *
-     * @param listener The listener being registered
-     */
-    private void subscribe(Listener listener) {
-        List<Listener> listeners = SUBSCRIPTION_MAP.computeIfAbsent(listener.getTarget(), target -> new CopyOnWriteArrayList<>());
-
-        int index = 0;
-        for (; index < listeners.size(); index++) {
-            if (listener.getPriority() < listeners.get(index).getPriority()) {
-                break;
-            }
-        }
-
-        listeners.add(index, listener);
     }
 }

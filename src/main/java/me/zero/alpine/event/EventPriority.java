@@ -1,4 +1,4 @@
-package me.zero.alpine.type;
+package me.zero.alpine.event;
 
 /**
  * Contains all of the default {@code Listener} Priorities.

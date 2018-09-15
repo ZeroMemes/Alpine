@@ -1,6 +1,6 @@
 package me.zero.alpine.listener;
 
-import me.zero.alpine.type.EventPriority;
+import me.zero.alpine.event.EventPriority;
 import net.jodah.typetools.TypeResolver;
 
 import java.util.function.Predicate;
@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  * @author Brady
  * @since 1/21/2017 12:00 PM
  */
-public final class Listener<T> implements EventHook<T> {
+public class Listener<T> implements EventHook<T> {
 
     /**
      * The target event class.
@@ -57,7 +57,7 @@ public final class Listener<T> implements EventHook<T> {
      *
      * @return The target event class
      */
-    public final Class<T> getTarget() {
+    public Class<T> getTarget() {
         return this.target;
     }
 
@@ -71,7 +71,7 @@ public final class Listener<T> implements EventHook<T> {
      *
      * @return Priority of Listener
      */
-    public final byte getPriority() {
+    public byte getPriority() {
         return priority;
     }
 
@@ -84,7 +84,7 @@ public final class Listener<T> implements EventHook<T> {
      * @param event Event being called
      */
     @Override
-    public final void invoke(T event) {
+    public void invoke(T event) {
         if (filters.length > 0)
             for (Predicate<T> filter : filters)
                 if (!filter.test(event))

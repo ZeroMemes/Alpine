@@ -1,4 +1,4 @@
-package me.zero.alpine.type;
+package me.zero.alpine.event;
 
 /**
  * The state of an event
