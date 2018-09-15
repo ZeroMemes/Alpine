@@ -18,7 +18,7 @@ Now to registering objects to listen to the event bus, we'll need to create a Li
 sort of generic type parameter. This generic type is the type of event we'll be listening for. I will be using
 ``java.lang.String`` for this example.
 ```Java
-public class EventProcessor {
+public class EventProcessor implements Listenable {
     
     @EventHandler
     private Listener<String> stringListener = new Listener<>(str -> {
