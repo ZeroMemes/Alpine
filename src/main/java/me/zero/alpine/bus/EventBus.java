@@ -60,6 +60,18 @@ public interface EventBus {
     }
 
     /**
+     * Subscribes all of the specified Listeners
+     *
+     * @see Listener
+     * @see #subscribe(Listener)
+     *
+     * @param listeners The array of listeners
+     */
+    default void subscribeAll(Listener... listeners) {
+        Arrays.stream(listeners).forEach(this::subscribe);
+    }
+
+    /**
      * Unsubscribes all of the Listeners that are defined by the Listenable
      *
      * @see #subscribe(Listenable)
@@ -99,6 +111,18 @@ public interface EventBus {
      */
     default void unsubscribeAll(Iterable<Listenable> listenables) {
         listenables.forEach(this::unsubscribe);
+    }
+
+    /**
+     * Unsubscribes all of the specified Listeners
+     *
+     * @see Listener
+     * @see #unsubscribe(Listener)
+     *
+     * @param listeners The array of listeners
+     */
+    default void unsubscribeAll(Listener... listeners) {
+        Arrays.stream(listeners).forEach(this::unsubscribe);
     }
 
     /**
