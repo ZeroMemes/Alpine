@@ -3,6 +3,8 @@ package me.zero.alpine.bus;
 import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 
+import java.util.Arrays;
+
 /**
  * An Event Bus is used to manage the flow of events. Listenables and
  * individual/standalone Listeners may be subscribed/unsubscribed from
@@ -41,7 +43,9 @@ public interface EventBus {
      *
      * @param listenables An array of Listenable objects
      */
-    void subscribeAll(Listenable... listenables);
+    default void subscribeAll(Listenable... listenables) {
+        Arrays.stream(listenables).forEach(this::subscribe);
+    }
 
     /**
      * Subscribes all of the specified Listenables
@@ -51,7 +55,9 @@ public interface EventBus {
      *
      * @param listenables An iterable of Listenable objects
      */
-    void subscribeAll(Iterable<Listenable> listenables);
+    default void subscribeAll(Iterable<Listenable> listenables) {
+        listenables.forEach(this::subscribe);
+    }
 
     /**
      * Unsubscribes all of the Listeners that are defined by the Listenable
@@ -79,7 +85,9 @@ public interface EventBus {
      *
      * @param listenables The array of objects
      */
-    void unsubscribeAll(Listenable... listenables);
+    default void unsubscribeAll(Listenable... listenables) {
+        Arrays.stream(listenables).forEach(this::unsubscribe);
+    }
 
     /**
      * Unsubscribes all of the specified Listenables
@@ -89,7 +97,9 @@ public interface EventBus {
      *
      * @param listenables The list of objects
      */
-    void unsubscribeAll(Iterable<Listenable> listenables);
+    default void unsubscribeAll(Iterable<Listenable> listenables) {
+        listenables.forEach(this::unsubscribe);
+    }
 
     /**
      * Posts an event to all registered {@code Listeners}.

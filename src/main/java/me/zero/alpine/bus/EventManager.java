@@ -58,16 +58,6 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void subscribeAll(Listenable... listenables) {
-        Arrays.stream(listenables).forEach(this::subscribe);
-    }
-
-    @Override
-    public void subscribeAll(Iterable<Listenable> listenables) {
-        listenables.forEach(this::subscribe);
-    }
-
-    @Override
     public void unsubscribe(Listenable listenable) {
         List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(listenable);
         if (objectListeners == null)
@@ -79,16 +69,6 @@ public class EventManager implements EventBus {
     @Override
     public void unsubscribe(Listener listener) {
         SUBSCRIPTION_MAP.get(listener.getTarget()).removeIf(l -> l.equals(listener));
-    }
-
-    @Override
-    public void unsubscribeAll(Listenable... listenables) {
-        Arrays.stream(listenables).forEach(this::unsubscribe);
-    }
-
-    @Override
-    public void unsubscribeAll(Iterable<Listenable> listenables) {
-        listenables.forEach(this::unsubscribe);
     }
 
     @SuppressWarnings("unchecked")
