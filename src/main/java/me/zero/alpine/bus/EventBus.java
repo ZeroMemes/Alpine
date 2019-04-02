@@ -11,7 +11,7 @@ import java.util.Arrays;
  * the event bus to listen to events.
  *
  * @author Brady
- * @since 5/27/2017 9:53 AM
+ * @since 5/27/2017
  */
 public interface EventBus {
 

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * @see EventManager
  *
  * @author Brady
- * @since 1/21/2017 12:00 PM
+ * @since 1/21/2017
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

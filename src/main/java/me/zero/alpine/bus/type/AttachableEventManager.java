@@ -1,6 +1,7 @@
-package me.zero.alpine.bus;
+package me.zero.alpine.bus.type;
 
-import me.zero.alpine.bus.type.AttachableEventBus;
+import me.zero.alpine.bus.EventBus;
+import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 
@@ -18,56 +19,56 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     /**
      * Holds the list of attached event buses
      */
-    private final List<EventBus> ATTACHED_BUSES = new ArrayList<>();
+    private final List<EventBus> attached = new ArrayList<>();
 
     @Override
     public void subscribe(Listenable listenable) {
         super.subscribe(listenable);
 
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.subscribe(listenable));
+        if (!this.attached.isEmpty())
+            this.attached.forEach(bus -> bus.subscribe(listenable));
     }
 
     @Override
     public void subscribe(Listener listener) {
         super.subscribe(listener);
 
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.subscribe(listener));
+        if (!this.attached.isEmpty())
+            this.attached.forEach(bus -> bus.subscribe(listener));
     }
 
     @Override
     public void unsubscribe(Listenable listenable) {
         super.unsubscribe(listenable);
 
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.unsubscribe(listenable));
+        if (!this.attached.isEmpty())
+            this.attached.forEach(bus -> bus.unsubscribe(listenable));
     }
 
     @Override
     public void unsubscribe(Listener listener) {
         super.unsubscribe(listener);
 
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.unsubscribe(listener));
+        if (!this.attached.isEmpty())
+            this.attached.forEach(bus -> bus.unsubscribe(listener));
     }
 
     @Override
     public void post(Object event) {
         super.post(event);
 
-        if (!ATTACHED_BUSES.isEmpty())
-            ATTACHED_BUSES.forEach(bus -> bus.post(event));
+        if (!this.attached.isEmpty())
+            this.attached.forEach(bus -> bus.post(event));
     }
 
     @Override
     public void attach(EventBus bus) {
-        if (!ATTACHED_BUSES.contains(bus))
-            ATTACHED_BUSES.add(bus);
+        if (!this.attached.contains(bus))
+            this.attached.add(bus);
     }
 
     @Override
     public void detach(EventBus bus) {
-        ATTACHED_BUSES.remove(bus);
+        this.attached.remove(bus);
     }
 }

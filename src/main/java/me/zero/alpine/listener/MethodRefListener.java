@@ -22,7 +22,7 @@ public class MethodRefListener<T> extends Listener<T> {
     }
 
     @SafeVarargs
-    public MethodRefListener(Class<T> target, EventHook<T> hook, byte priority, Predicate<T>... filters) {
+    public MethodRefListener(Class<T> target, EventHook<T> hook, int priority, Predicate<T>... filters) {
         super(hook, priority, filters);
         this.target = target;
     }

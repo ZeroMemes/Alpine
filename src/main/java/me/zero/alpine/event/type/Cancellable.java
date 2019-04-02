@@ -1,10 +1,10 @@
-package me.zero.alpine.event;
+package me.zero.alpine.event.type;
 
 /**
  * Implementation of {@link ICancellable}
  *
  * @author Brady
- * @since 2/10/2017 12:00 PM
+ * @since 2/10/2017
  */
 public class Cancellable implements ICancellable {
 

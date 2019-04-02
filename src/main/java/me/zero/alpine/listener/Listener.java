@@ -6,27 +6,29 @@ import net.jodah.typetools.TypeResolver;
 import java.util.function.Predicate;
 
 /**
- * Used to define new EventHooks.
+ * A wrapper body that is used to define new event listeners. When a body is a method reference,
+ * there isn't a guarantee that the target type will be interpreted correctly, and therefore the
+ * more explicit implementation of this class, {@link MethodRefListener}, should be used instead.
  *
  * @param <T> Target event type
  *
  * @author Brady
- * @since 1/21/2017 12:00 PM
+ * @since 1/21/2017
  */
 public class Listener<T> implements EventHook<T> {
 
     /**
-     * The target event class.
+     * The type of the target event.
      */
     private final Class<T> target;
 
     /**
-     * The "body" of this {@code Listener}
+     * The body of this {@link Listener}, called when all filters, if any, pass.
      */
     private final EventHook<T> hook;
 
     /**
-     * Filters to be run on all of the events passed to this {@code Listener}
+     * Various "filters" that events being posted to this {@link Listener} are tested against.
      */
     private final Predicate<T>[] filters;
 
@@ -35,7 +37,7 @@ public class Listener<T> implements EventHook<T> {
      *
      * @see EventPriority
      */
-    private final byte priority;
+    private final int priority;
 
     @SafeVarargs
     public Listener(EventHook<T> hook, Predicate<T>... filters) {
@@ -44,7 +46,7 @@ public class Listener<T> implements EventHook<T> {
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public Listener(EventHook<T> hook, byte priority, Predicate<T>... filters) {
+    public Listener(EventHook<T> hook, int priority, Predicate<T>... filters) {
         this.hook = hook;
         this.priority = priority;
         this.target = (Class<T>) TypeResolver.resolveRawArgument(EventHook.class, hook.getClass());
@@ -52,32 +54,32 @@ public class Listener<T> implements EventHook<T> {
     }
 
     /**
-     * Returns the target event class, represented
-     * by the {@code <T>} class parameter.
+     * Returns the type of the event that is targeted by this {@link Listener}.
+     * This is defined by the {@link T} generic parameter.
      *
-     * @return The target event class
+     * @return The target event type
      */
     public Class<T> getTarget() {
         return this.target;
     }
 
     /**
-     * Returns the priority of this listener. The priority
-     * is used to determine the order of listener invocations
-     * for a given event. The return value is limited by the
-     * {@code HIGHEST} and {@code LOWEST} values of {@code EventPriority}.
+     * Returns the priority of this {@link Listener}. A higher literal value is reflective
+     * of a higher priority, and therefore the {@link Listener} will be called sooner in the
+     * event posting sequence.
      *
      * @see EventPriority
      *
      * @return Priority of Listener
      */
-    public byte getPriority() {
+    public int getPriority() {
         return priority;
     }
 
     /**
-     * Passes the event to this Listener's body after
-     * all of the filters have passed their checks.
+     * Called during the event posting sequence. Verifies that the event is acceptable by
+     * testing it against the filters defined by this event listener, and if so, makes
+     * the final event pass to this listener's handling body.
      *
      * @see EventHook
      *
@@ -85,11 +87,13 @@ public class Listener<T> implements EventHook<T> {
      */
     @Override
     public void invoke(T event) {
-        if (filters.length > 0)
-            for (Predicate<T> filter : filters)
-                if (!filter.test(event))
+        if (filters.length > 0) {
+            for (Predicate<T> filter : filters) {
+                if (!filter.test(event)) {
                     return;
-
+                }
+            }
+        }
         this.hook.invoke(event);
     }
 }

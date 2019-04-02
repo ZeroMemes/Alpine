@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * Default implementation of {@code EventBus}
  *
  * @author Brady
- * @since 1/19/2017 12:00 PM
+ * @since 1/19/2017
  */
 public class EventManager implements EventBus {
 
@@ -49,7 +49,7 @@ public class EventManager implements EventBus {
 
         int index = 0;
         for (; index < listeners.size(); index++) {
-            if (listener.getPriority() < listeners.get(index).getPriority()) {
+            if (listener.getPriority() > listeners.get(index).getPriority()) {
                 break;
             }
         }
@@ -112,9 +112,6 @@ public class EventManager implements EventBus {
 
             if (listener == null)
                 return null;
-
-            if (listener.getPriority() > EventPriority.LOWEST || listener.getPriority() < EventPriority.HIGHEST)
-                throw new RuntimeException("Event Priority out of bounds! %s");
 
             return listener;
         } catch (IllegalAccessException e) {
