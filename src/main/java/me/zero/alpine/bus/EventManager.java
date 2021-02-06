@@ -108,13 +108,8 @@ public class EventManager implements EventBus {
         try {
             boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            Listener listener = (Listener) field.get(listenable);
             field.setAccessible(accessible);
-
-            if (listener == null)
-                return null;
-
-            return listener;
+            return (Listener) field.get(listenable);
         } catch (IllegalAccessException e) {
             return null;
         }
