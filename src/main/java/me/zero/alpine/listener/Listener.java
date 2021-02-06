@@ -3,6 +3,7 @@ package me.zero.alpine.listener;
 import me.zero.alpine.event.EventPriority;
 import net.jodah.typetools.TypeResolver;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -87,13 +88,10 @@ public class Listener<T> implements EventHook<T> {
      */
     @Override
     public void invoke(T event) {
-        if (filters.length > 0) {
-            for (Predicate<T> filter : filters) {
-                if (!filter.test(event)) {
-                    return;
-                }
-            }
+        if (Arrays.stream(filters).anyMatch(pred -> !pred.test(event))) {
+            return;
         }
-        this.hook.invoke(event);
+        hook.invoke(event);
     }
+
 }

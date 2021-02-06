@@ -33,14 +33,12 @@ public class EventManager implements EventBus {
 
     @Override
     public void subscribe(Listenable listenable) {
-        List<Listener> listeners = SUBSCRIPTION_CACHE.computeIfAbsent(listenable, o ->
+        SUBSCRIPTION_CACHE.computeIfAbsent(listenable, o ->
                 Arrays.stream(o.getClass().getDeclaredFields())
                         .filter(EventManager::isValidField)
                         .map(field -> asListener(o, field))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList()));
-
-        listeners.forEach(this::subscribe);
+                        .collect(Collectors.toList())).forEach(this::subscribe);
     }
 
     @Override
