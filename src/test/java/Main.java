@@ -1,3 +1,5 @@
+import me.zero.alpine.tests.EventManagerTest;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -7,5 +9,6 @@ public class Main {
         Core.EVENT_BUS.post("123"); // Should give "123" console output
         Core.EVENT_BUS.unsubscribe(processor);
         Core.EVENT_BUS.post("321");
+        new EventManagerTest().run();
     }
 }
