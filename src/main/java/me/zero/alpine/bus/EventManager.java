@@ -61,9 +61,7 @@ public class EventManager implements EventBus {
     @Override
     public void unsubscribe(Listenable listenable) {
         List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(listenable);
-        if (objectListeners == null)
-            return;
-
+        if (objectListeners == null) return;
         SUBSCRIPTION_MAP.values().forEach(listeners -> listeners.removeIf(objectListeners::contains));
     }
 
@@ -76,8 +74,8 @@ public class EventManager implements EventBus {
     @Override
     public void post(Object event) {
         List<Listener> listeners = SUBSCRIPTION_MAP.get(event.getClass());
-        if (listeners != null)
-            listeners.forEach(listener -> listener.invoke(event));
+        if (listeners == null) return;
+        listeners.forEach(listener -> listener.invoke(event));
     }
 
     /**
@@ -114,4 +112,5 @@ public class EventManager implements EventBus {
             return null;
         }
     }
+
 }
