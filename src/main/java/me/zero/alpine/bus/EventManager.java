@@ -3,10 +3,12 @@ package me.zero.alpine.bus;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
-import me.zero.alpine.event.EventPriority;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -38,7 +40,8 @@ public class EventManager implements EventBus {
                         .filter(EventManager::isValidField)
                         .map(field -> asListener(o, field))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList())).forEach(this::subscribe);
+                        .collect(Collectors.toList()))
+                .forEach(this::subscribe);
     }
 
     @Override
