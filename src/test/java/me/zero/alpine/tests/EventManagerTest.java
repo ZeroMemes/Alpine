@@ -4,14 +4,13 @@ import me.zero.alpine.bus.EventBus;
 import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.EventPriority;
 import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class EventManagerTest implements Listenable {
+public class EventManagerTest {
 
     private static final EventBus bus = new EventManager();
 
@@ -45,8 +44,8 @@ public class EventManagerTest implements Listenable {
     }};
 
     public void run() {
-        bus.subscribe(this);
         Collections.shuffle(listeners);
+        listeners.forEach(bus::subscribe);
         bus.post(new TestEvent());
         System.out.println(received.toString());
         assertEquals(received.size(), 6);
