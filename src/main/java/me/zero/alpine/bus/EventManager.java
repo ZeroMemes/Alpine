@@ -103,13 +103,14 @@ public class EventManager implements EventBus {
      * @param field Listener field
      */
     private static Listener asListener(Listenable listenable, Field field) {
+        boolean accessible = field.isAccessible();
         try {
-            boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            field.setAccessible(accessible);
             return (Listener) field.get(listenable);
         } catch (IllegalAccessException e) {
             return null;
+        } finally {
+            field.setAccessible(accessible);
         }
     }
 
