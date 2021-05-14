@@ -3,10 +3,12 @@ package me.zero.alpine.bus;
 import me.zero.alpine.listener.EventHandler;
 import me.zero.alpine.listener.Listenable;
 import me.zero.alpine.listener.Listener;
-import me.zero.alpine.event.EventPriority;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -33,14 +35,13 @@ public class EventManager implements EventBus {
 
     @Override
     public void subscribe(Listenable listenable) {
-        List<Listener> listeners = SUBSCRIPTION_CACHE.computeIfAbsent(listenable, o ->
+        SUBSCRIPTION_CACHE.computeIfAbsent(listenable, o ->
                 Arrays.stream(o.getClass().getDeclaredFields())
                         .filter(EventManager::isValidField)
                         .map(field -> asListener(o, field))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList()));
-
-        listeners.forEach(this::subscribe);
+                        .collect(Collectors.toList()))
+                .forEach(this::subscribe);
     }
 
     @Override
@@ -60,9 +61,7 @@ public class EventManager implements EventBus {
     @Override
     public void unsubscribe(Listenable listenable) {
         List<Listener> objectListeners = SUBSCRIPTION_CACHE.get(listenable);
-        if (objectListeners == null)
-            return;
-
+        if (objectListeners == null) return;
         SUBSCRIPTION_MAP.values().forEach(listeners -> listeners.removeIf(objectListeners::contains));
     }
 
@@ -75,8 +74,8 @@ public class EventManager implements EventBus {
     @Override
     public void post(Object event) {
         List<Listener> listeners = SUBSCRIPTION_MAP.get(event.getClass());
-        if (listeners != null)
-            listeners.forEach(listener -> listener.invoke(event));
+        if (listeners == null) return;
+        listeners.forEach(listener -> listener.invoke(event));
     }
 
     /**
@@ -104,18 +103,15 @@ public class EventManager implements EventBus {
      * @param field Listener field
      */
     private static Listener asListener(Listenable listenable, Field field) {
+        boolean accessible = field.isAccessible();
         try {
-            boolean accessible = field.isAccessible();
             field.setAccessible(true);
-            Listener listener = (Listener) field.get(listenable);
-            field.setAccessible(accessible);
-
-            if (listener == null)
-                return null;
-
-            return listener;
+            return (Listener) field.get(listenable);
         } catch (IllegalAccessException e) {
             return null;
+        } finally {
+            field.setAccessible(accessible);
         }
     }
+
 }

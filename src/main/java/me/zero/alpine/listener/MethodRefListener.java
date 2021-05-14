@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  */
 public class MethodRefListener<T> extends Listener<T> {
 
-    private Class<T> target;
+    private final Class<T> target;
 
     @SafeVarargs
     public MethodRefListener(Class<T> target, EventHook<T> hook, Predicate<T>... filters) {
