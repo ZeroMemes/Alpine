@@ -20,5 +20,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.jodah:typetools:0.5.0'
+    implementation 'net.jodah:typetools:0.6.3'
 }
