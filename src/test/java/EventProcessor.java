@@ -6,11 +6,11 @@ public class EventProcessor implements EventSubscriber {
 
     @Subscribe
     private Listener<String> stringListener = new Listener<>(s -> {
-        System.out.println(s);
+        System.out.println("stringListener:" + s);
     }, new LengthOf3Filter());
 
     @Subscribe
     private Listener<CharSequence> charSequenceListener = new Listener<>(s -> {
-        System.out.println(s);
-    });
+        System.out.println("charSequenceListener:" + s);
+    }, new LengthOf3Filter());
 }
