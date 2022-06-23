@@ -1,6 +1,6 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.event.type.Cancellable;
+import me.zero.alpine.event.Cancellable;
 import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 

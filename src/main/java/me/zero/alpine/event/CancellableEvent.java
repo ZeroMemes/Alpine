@@ -1,4 +1,4 @@
-package me.zero.alpine.event.type;
+package me.zero.alpine.event;
 
 /**
  * Default implementation of {@link Cancellable}
