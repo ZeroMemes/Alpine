@@ -1,11 +1,16 @@
-import me.zero.alpine.listener.EventHandler;
-import me.zero.alpine.listener.Listenable;
+import me.zero.alpine.listener.Subscribe;
+import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 
-public class EventProcessor implements Listenable {
+public class EventProcessor implements EventSubscriber {
 
-    @EventHandler
-    private Listener<String> stringListener = new Listener<>(str -> {
-        System.out.println(str);
+    @Subscribe
+    private Listener<String> stringListener = new Listener<>(s -> {
+        System.out.println(s);
     }, new LengthOf3Filter());
+
+    @Subscribe
+    private Listener<CharSequence> charSequenceListener = new Listener<>(s -> {
+        System.out.println(s);
+    });
 }

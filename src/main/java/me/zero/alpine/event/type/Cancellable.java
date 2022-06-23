@@ -1,25 +1,32 @@
 package me.zero.alpine.event.type;
 
+import me.zero.alpine.listener.Listener;
+
 /**
- * Implementation of {@link ICancellable}
+ * A type of event that can be cancelled. The exact effect of cancelling an event is dependent on how it is handled
+ * in the call-site itself. Cancelling an event will not prevent it from being passed to its subscribed
+ * {@link Listener}s.
  *
  * @author Brady
- * @since 2/10/2017
+ * @see CancellableEvent
+ * @since 9/15/2018
  */
-public class Cancellable implements ICancellable {
+public interface Cancellable {
 
     /**
-     * Cancelled state
+     * Cancels this event. Equivalent to {@code setCancelled(true)}
      */
-    private boolean cancelled;
-
-    @Override
-    public void cancel() {
-        this.cancelled = true;
+    default void cancel() {
+        this.setCancelled(true);
     }
 
-    @Override
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
+    /**
+     * @param cancel Whether to cancel this event
+     */
+    void setCancelled(boolean cancel);
+
+    /**
+     * @return Whether the event has been cancelled
+     */
+    boolean isCancelled();
 }
