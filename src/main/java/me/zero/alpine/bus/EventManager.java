@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +34,7 @@ public class EventManager implements EventBus {
     /**
      * Map containing all event classes and the currently subscribed listeners
      */
-    protected final Map<Class<?>, List<Listener<?>>> activeListeners = new ConcurrentHashMap<>();
+    protected final Map<Class<?>, CopyOnWriteArrayList<Listener<?>>> activeListeners = new ConcurrentHashMap<>();
 
     /**
      * The name of this bus
@@ -120,7 +121,7 @@ public class EventManager implements EventBus {
                 }
             });
         } else {
-            List<Listener<?>> listeners = this.activeListeners.get(event.getClass());
+            CopyOnWriteArrayList<Listener<?>> listeners = this.activeListeners.get(event.getClass());
             if (listeners != null) {
                 listeners.forEach(listener -> ((Listener<Object>) listener).accept(event));
             }
@@ -140,7 +141,9 @@ public class EventManager implements EventBus {
             cls = cls.getSuperclass();
         } while (this.recursiveDiscovery && cls != null);
 
-        return fields.map(field -> asListener(subscriber, field)).collect(Collectors.toList());
+        return Collections.unmodifiableList(
+            fields.map(field -> asListener(subscriber, field)).collect(Collectors.toList())
+        );
     }
 
     protected static Stream<Field> getListenersFields(Class<?> cls) {
