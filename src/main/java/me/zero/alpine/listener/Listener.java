@@ -30,7 +30,7 @@ public final class Listener<T> implements Consumer<T> {
     /**
      * Various "filters" that events being posted to this {@link Listener} are tested against.
      */
-    private final Predicate<T>[] filters;
+    private final Predicate<? super T>[] filters;
 
     /**
      * Priority of this {@code Listener}
@@ -40,23 +40,23 @@ public final class Listener<T> implements Consumer<T> {
     private final int priority;
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, Predicate<T>... filters) {
+    public Listener(Consumer<T> callback, Predicate<? super T>... filters) {
         this(null, callback, EventPriority.DEFAULT, filters);
     }
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, int priority, Predicate<T>... filters) {
+    public Listener(Consumer<T> callback, int priority, Predicate<? super T>... filters) {
         this(null, callback, priority, filters);
     }
 
     @SafeVarargs
-    public Listener(Class<T> target, Consumer<T> callback, Predicate<T>... filters) {
+    public Listener(Class<T> target, Consumer<T> callback, Predicate<? super T>... filters) {
         this(target, callback, EventPriority.DEFAULT, filters);
     }
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<T>... filters) {
+    public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
         this.callback = callback;
         this.priority = priority;
         this.filters = filters;
@@ -106,7 +106,7 @@ public final class Listener<T> implements Consumer<T> {
      */
     @Override
     public void accept(T event) {
-        for (Predicate<T> filter : this.filters) {
+        for (Predicate<? super T> filter : this.filters) {
             if (!filter.test(event)) {
                 return;
             }
