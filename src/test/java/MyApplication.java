@@ -22,7 +22,7 @@ public class MyApplication implements EventSubscriber {
 
     @Subscribe
     private Listener<String> stringListener = new Listener<>(s -> {
-        System.out.println("stringListener:" + s);
+        System.out.println(s);
     }, new LengthOf3Filter());
 
     public static class LengthOf3Filter implements Predicate<CharSequence> {
