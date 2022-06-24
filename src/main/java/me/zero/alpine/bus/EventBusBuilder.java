@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public final class EventBusBuilder<T extends EventBus> {
 
-    private String name;
+    private String name = null;
     private boolean recursiveDiscovery = false;
     private boolean superListeners = false;
     private boolean attachable = false;
@@ -52,6 +52,11 @@ public final class EventBusBuilder<T extends EventBus> {
         return this;
     }
 
+    /**
+     * Causes this builder to create an {@link EventBus} which implements {@link AttachableEventBus}.
+     *
+     * @return This builder
+     */
     @SuppressWarnings("unchecked")
     public EventBusBuilder<AttachableEventBus> setAttachable() {
         this.attachable = true;

@@ -28,12 +28,12 @@ public final class Listener<T> implements Consumer<T> {
     private final Consumer<T> callback;
 
     /**
-     * Various "filters" that events being posted to this {@link Listener} are tested against.
+     * The filters that events being posted to this {@link Listener} are tested against.
      */
     private final Predicate<? super T>[] filters;
 
     /**
-     * Priority of this {@code Listener}
+     * Priority of this {@link Listener}.
      *
      * @see EventPriority
      */
@@ -41,7 +41,7 @@ public final class Listener<T> implements Consumer<T> {
 
     @SafeVarargs
     public Listener(Consumer<T> callback, Predicate<? super T>... filters) {
-        this(null, callback, EventPriority.DEFAULT, filters);
+        this(null, callback, filters);
     }
 
     @SafeVarargs
@@ -54,6 +54,14 @@ public final class Listener<T> implements Consumer<T> {
         this(target, callback, EventPriority.DEFAULT, filters);
     }
 
+    /**
+     * Creates a new {@link Listener} instance.
+     *
+     * @param target   The target event type. If {@code null}, an attempt will be made to automatically resolve the target.
+     * @param callback The event callback function.
+     * @param priority The priority value. See {@link EventPriority}.
+     * @param filters  Checks used to validate the event object before the {@code callback} is invoked.
+     */
     @SafeVarargs
     @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
@@ -71,6 +79,7 @@ public final class Listener<T> implements Consumer<T> {
      * type when using a method reference to a method whose parameter isn't the exact event type.
      *
      * @param target The new target
+     * @throws IllegalArgumentException if the existing target isn't assignable from the new target
      */
     public void setTarget(Class<T> target) {
         if (!this.target.isAssignableFrom(target)) {

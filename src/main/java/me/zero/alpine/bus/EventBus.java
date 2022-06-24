@@ -24,7 +24,7 @@ public interface EventBus {
     void subscribe(EventSubscriber subscriber);
 
     /**
-     * Subscribes an individual listener object
+     * Subscribes an individual listener object.
      *
      * @param listener The individual listener to subscribe
      */
@@ -101,7 +101,7 @@ public interface EventBus {
     }
 
     /**
-     * Posts an event to all registered {@code Listeners}.
+     * Posts an event to all registered {@link Listener}s.
      *
      * @param event Event being called
      * @see Listener#accept(Object)
@@ -109,7 +109,7 @@ public interface EventBus {
     void post(Object event);
 
     /**
-     * Posts a cancellable event and returns whether the event has been cancelled
+     * Posts a cancellable event and returns whether the event has been cancelled.
      *
      * @param event Event being called
      * @return Whether the event has been cancelled

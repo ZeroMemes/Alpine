@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Default implementation of {@link EventBus}
+ * Default implementation of {@link EventBus}.
  *
  * @author Brady
  * @since 1/19/2017
@@ -32,22 +32,26 @@ public class EventManager implements EventBus {
     protected final Map<EventSubscriber, List<Listener<?>>> subscriberListenerCache = new ConcurrentHashMap<>();
 
     /**
-     * Map containing all event classes and the currently subscribed listeners
+     * Map containing all event classes and the currently subscribed listeners.
      */
     protected final Map<Class<?>, CopyOnWriteArrayList<Listener<?>>> activeListeners = new ConcurrentHashMap<>();
 
     /**
-     * The name of this bus
+     * The name of this bus.
      */
     protected final String name;
 
     /**
-     * Whether to search superclasses of an instance for Listener fields
+     * Whether to search superclasses of an instance for Listener fields. Due to the caching functionality provided by
+     * {@link #subscriberListenerCache}, modifying this field outside the constructor can result in inconsistent
+     * behavior when adding a {@link EventSubscriber} to the bus. It is therefore recommended that subclasses of this
+     * {@link EventBus} implementation set the desired value of this flag in their constructor, prior to when any
+     * {@link EventSubscriber}s would be added via any of the relevant {@code subscribe} methods.
      */
     protected boolean recursiveDiscovery;
 
     /**
-     * Whether to post an event to all Listeners that target a supertype of the event
+     * Whether to post an event to all Listeners that target a supertype of the event.
      */
     protected boolean superListeners;
 

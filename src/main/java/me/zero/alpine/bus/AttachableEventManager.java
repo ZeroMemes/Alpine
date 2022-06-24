@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of {@link EventManager} that is an {@link AttachableEventBus}
+ * Implementation of {@link EventManager} that is an {@link AttachableEventBus}.
  *
  * @author Brady
  * @since 9/15/2018
@@ -15,7 +15,7 @@ import java.util.List;
 public class AttachableEventManager extends EventManager implements AttachableEventBus {
 
     /**
-     * List of attached event buses
+     * List of attached event buses.
      */
     protected final List<EventBus> attached = new ArrayList<>();
 

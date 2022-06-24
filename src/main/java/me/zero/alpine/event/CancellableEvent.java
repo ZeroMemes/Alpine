@@ -1,7 +1,7 @@
 package me.zero.alpine.event;
 
 /**
- * Default implementation of {@link Cancellable}
+ * Default implementation of {@link Cancellable}.
  *
  * @author Brady
  * @since 2/10/2017

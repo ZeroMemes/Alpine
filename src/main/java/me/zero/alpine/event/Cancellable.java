@@ -14,7 +14,7 @@ import me.zero.alpine.listener.Listener;
 public interface Cancellable {
 
     /**
-     * Cancels this event. Equivalent to {@code setCancelled(true)}
+     * Cancels this event. Equivalent to {@code setCancelled(true)}.
      */
     default void cancel() {
         this.setCancelled(true);
