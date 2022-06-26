@@ -1,136 +1,121 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.listener.Listenable;
+import me.zero.alpine.event.Cancellable;
+import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 
-import java.util.Arrays;
-
 /**
- * An Event Bus is used to manage the flow of events. Listenables and
- * individual/standalone Listeners may be subscribed/unsubscribed from
- * the event bus to listen to events.
+ * The core of an event-driven application.
+ * <p>
+ * Used to dispatch events to {@link Listener}s, and manage the active {@link Listener}s.
  *
  * @author Brady
  * @since 5/27/2017
  */
 public interface EventBus {
 
-    /**
-     * Discovers all of the valid Listeners defined in the
-     * specified Listenable and subscribes them to the event bus.
-     *
-     * @see Listener
-     *
-     * @param listenable The Listenable to be subscribed to the event bus
-     */
-    void subscribe(Listenable listenable);
+    String name();
 
     /**
-     * Subscribes an individual listener object, as opposed to subscribing
-     * all of the listener fields that are defined in a class.
+     * Discovers all the valid Listener instances defined by the specified {@link EventSubscriber} and adds them to the bus.
      *
-     * @see Listener
+     * @param subscriber The subscriber to be added
+     */
+    void subscribe(EventSubscriber subscriber);
+
+    /**
+     * Subscribes an individual listener object.
      *
      * @param listener The individual listener to subscribe
      */
-    void subscribe(Listener listener);
+    void subscribe(Listener<?> listener);
 
     /**
-     * Subscribes all of the specified Listenables
-     *
-     * @see Listener
-     * @see #subscribe(Listenable)
-     *
-     * @param listenables An array of Listenable objects
+     * @param subscribers An array of subscribers
+     * @see #subscribe(EventSubscriber)
      */
-    default void subscribeAll(Listenable... listenables) {
-        Arrays.stream(listenables).forEach(this::subscribe);
+    default void subscribeAll(EventSubscriber... subscribers) {
+        for (EventSubscriber subscriber : subscribers) {
+            this.subscribe(subscriber);
+        }
     }
 
     /**
-     * Subscribes all of the specified Listenables
-     *
-     * @see Listener
-     * @see #subscribe(Listenable)
-     *
-     * @param listenables An iterable of Listenable objects
+     * @param subscribers An iterable of subscribers
+     * @see #subscribe(EventSubscriber)
      */
-    default void subscribeAll(Iterable<Listenable> listenables) {
-        listenables.forEach(this::subscribe);
+    default void subscribeAll(Iterable<EventSubscriber> subscribers) {
+        subscribers.forEach(this::subscribe);
     }
 
     /**
-     * Subscribes all of the specified Listeners
-     *
-     * @see Listener
+     * @param listeners An array of listeners
      * @see #subscribe(Listener)
-     *
-     * @param listeners The array of listeners
      */
-    default void subscribeAll(Listener... listeners) {
-        Arrays.stream(listeners).forEach(this::subscribe);
+    default void subscribeAll(Listener<?>... listeners) {
+        for (Listener<?> listener : listeners) {
+            this.subscribe(listener);
+        }
     }
 
     /**
-     * Unsubscribes all of the Listeners that are defined by the Listenable
+     * Removes all the previously identified Listener instances defined by the specified {@link EventSubscriber}.
      *
-     * @see #subscribe(Listenable)
-     *
-     * @param listenable The Listenable to be unsubscribed from the event bus
+     * @param subscriber The subscriber to be unsubscribed from the event bus
      */
-    void unsubscribe(Listenable listenable);
+    void unsubscribe(EventSubscriber subscriber);
 
     /**
      * Unsubscribe an individual listener object.
      *
-     * @see Listener
-     *
      * @param listener The individual listener to unsubscribe
      */
-    void unsubscribe(Listener listener);
+    void unsubscribe(Listener<?> listener);
 
     /**
-     * Unsubscribes all of the specified Listenables
-     *
-     * @see Listener
-     * @see #unsubscribe(Listenable)
-     *
-     * @param listenables The array of objects
+     * @param subscribers An array of subscribers
+     * @see #unsubscribe(EventSubscriber)
      */
-    default void unsubscribeAll(Listenable... listenables) {
-        Arrays.stream(listenables).forEach(this::unsubscribe);
+    default void unsubscribeAll(EventSubscriber... subscribers) {
+        for (EventSubscriber subscriber : subscribers) {
+            this.unsubscribe(subscriber);
+        }
     }
 
     /**
-     * Unsubscribes all of the specified Listenables
-     *
-     * @see Listener
-     * @see #unsubscribe(Listenable)
-     *
-     * @param listenables The list of objects
+     * @param subscribers An iterable of subscribers
+     * @see #unsubscribe(EventSubscriber)
      */
-    default void unsubscribeAll(Iterable<Listenable> listenables) {
-        listenables.forEach(this::unsubscribe);
+    default void unsubscribeAll(Iterable<EventSubscriber> subscribers) {
+        subscribers.forEach(this::unsubscribe);
     }
 
     /**
-     * Unsubscribes all of the specified Listeners
-     *
-     * @see Listener
+     * @param listeners An array of listeners
      * @see #unsubscribe(Listener)
-     *
-     * @param listeners The array of listeners
      */
-    default void unsubscribeAll(Listener... listeners) {
-        Arrays.stream(listeners).forEach(this::unsubscribe);
+    default void unsubscribeAll(Listener<?>... listeners) {
+        for (Listener<?> listener : listeners) {
+            this.unsubscribe(listener);
+        }
     }
 
     /**
-     * Posts an event to all registered {@code Listeners}.
-     *
-     * @see Listener#invoke(Object)
+     * Posts an event to all registered {@link Listener}s.
      *
      * @param event Event being called
+     * @see Listener#accept(Object)
      */
     void post(Object event);
+
+    /**
+     * Posts a cancellable event and returns whether the event has been cancelled.
+     *
+     * @param event Event being called
+     * @return Whether the event has been cancelled
+     */
+    default boolean post(Cancellable event) {
+        this.post((Object) event);
+        return event.isCancelled();
+    }
 }
