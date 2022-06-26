@@ -119,7 +119,7 @@ public class MyApplication {
         System.out.println(str);
     }, new LengthOf3Filter()); // <-- Predicate<? super String>... as last argument to Listener
 
-    // Create nested implementation of our filter
+    // Create nested class implementation of our filter
     public static class LengthOf3Filter implements Predicate<CharSequence> {
 
         @Override

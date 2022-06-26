@@ -16,8 +16,8 @@ public class MyApplication implements EventSubscriber {
 
     public static void main(String[] args) {
         MyApplication app = new MyApplication();
-        MyApplication.EVENT_BUS.subscribe(app);
-        MyApplication.EVENT_BUS.post("Test");
+        EVENT_BUS.subscribe(app);
+        EVENT_BUS.post("Test");
     }
 
     @Subscribe
