@@ -17,6 +17,8 @@ import java.util.function.Predicate;
  */
 public final class Listener<T> implements Consumer<T> {
 
+    private static final Predicate<?>[] EMPTY_FILTERS = new Predicate[0];
+
     /**
      * The type of the target event.
      */
@@ -38,6 +40,26 @@ public final class Listener<T> implements Consumer<T> {
      * @see EventPriority
      */
     private final int priority;
+
+    @SuppressWarnings("unchecked")
+    public Listener(Consumer<T> callback) {
+        this(null, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Listener(Consumer<T> callback, int priority) {
+        this(null, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Listener(Class<T> target, Consumer<T> callback) {
+        this(target, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Listener(Class<T> target, Consumer<T> callback, int priority) {
+        this(target, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+    }
 
     @SafeVarargs
     public Listener(Consumer<T> callback, Predicate<? super T>... filters) {
