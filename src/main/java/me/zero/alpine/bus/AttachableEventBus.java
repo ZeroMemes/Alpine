@@ -1,8 +1,9 @@
 package me.zero.alpine.bus;
 
 /**
- * A type of {@link EventBus} that can have child event buses "attached" to it, allowing them to receive the same method
- * calls as the "parent" event bus.
+ * A type of {@link EventBus} that can have child event buses "attached" to it, allowing them to receive the same events
+ * that get posted to the parent. In applications with a central {@link EventBus}, this allows users making extensions
+ * to applications to use their own event bus(es).
  *
  * @author Brady
  * @since 9/15/2018
@@ -10,12 +11,10 @@ package me.zero.alpine.bus;
 public interface AttachableEventBus extends EventBus {
 
     /**
-     * Attaches another {@link EventBus} onto this event bus, allowing it to receive the same method calls as this bus.
-     * In applications with a central {@link EventBus}, this allows users making extensions to applications to use their
-     * own event bus. Method calls being carried out should prioritize the parent {@link EventBus}.
+     * Attaches another {@link EventBus} onto this event bus, allowing it to receive the events posted to this bus. Has
+     * no effect if the given bus has already been attached to this bus.
      *
      * @param bus The bus
-     * @see AttachableEventBus#detach(EventBus)
      */
     void attach(EventBus bus);
 
@@ -24,7 +23,6 @@ public interface AttachableEventBus extends EventBus {
      * already been called on the given bus.
      *
      * @param bus The bus
-     * @see AttachableEventBus#attach(EventBus)
      */
     void detach(EventBus bus);
 }

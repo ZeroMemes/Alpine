@@ -1,10 +1,7 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.listener.EventSubscriber;
-import me.zero.alpine.listener.Listener;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation of {@link EventManager} that is an {@link AttachableEventBus}.
@@ -17,7 +14,7 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     /**
      * List of attached event buses.
      */
-    protected final List<EventBus> attached = new ArrayList<>();
+    protected final List<EventBus> attached = new CopyOnWriteArrayList<>();
 
     public AttachableEventManager(String name) {
         super(name);
@@ -25,30 +22,6 @@ public class AttachableEventManager extends EventManager implements AttachableEv
 
     AttachableEventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
         super(name, recursiveDiscovery, superListeners);
-    }
-
-    @Override
-    public void subscribe(EventSubscriber subscriber) {
-        super.subscribe(subscriber);
-        this.attached.forEach(bus -> bus.subscribe(subscriber));
-    }
-
-    @Override
-    public void subscribe(Listener<?> listener) {
-        super.subscribe(listener);
-        this.attached.forEach(bus -> bus.subscribe(listener));
-    }
-
-    @Override
-    public void unsubscribe(EventSubscriber subscriber) {
-        super.unsubscribe(subscriber);
-        this.attached.forEach(bus -> bus.unsubscribe(subscriber));
-    }
-
-    @Override
-    public void unsubscribe(Listener<?> listener) {
-        super.unsubscribe(listener);
-        this.attached.forEach(bus -> bus.unsubscribe(listener));
     }
 
     @Override
