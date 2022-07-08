@@ -3,6 +3,7 @@ package me.zero.alpine.bus;
 import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
+import net.jodah.typetools.TypeResolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -173,7 +174,7 @@ public class EventManager implements EventBus {
             field.setAccessible(accessible);
 
             // Resolve the actual target type from the field type parameter, and update the Listener target
-            Class<T> target = (Class<T>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+            Class<T> target = (Class<T>) TypeResolver.resolveRawArgument(field.getGenericType(), Listener.class);
             listener.setTarget(target);
 
             return listener;
