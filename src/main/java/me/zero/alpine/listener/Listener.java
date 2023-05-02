@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * @author Brady
  * @since 1/21/2017
  */
-public final class Listener<T> implements Consumer<T> {
+public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
 
     private static final Predicate<?>[] EMPTY_FILTERS = new Predicate[0];
 
@@ -143,5 +143,11 @@ public final class Listener<T> implements Consumer<T> {
             }
         }
         this.callback.accept(event);
+    }
+
+    @Override
+    public int compareTo(Listener<?> o) {
+        // Listeners with higher priorities should come first, so negate the compare result
+        return -Integer.compare(this.getPriority(), o.getPriority());
     }
 }

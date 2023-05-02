@@ -8,10 +8,7 @@ import net.jodah.typetools.TypeResolver;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -84,13 +81,10 @@ public class EventManager implements EventBus {
             return;
         }
 
-        int index = 0;
-        for (; index < listeners.size(); index++) {
-            if (listener.getPriority() > listeners.get(index).getPriority()) {
-                break;
-            }
+        int index = Collections.binarySearch(listeners, listener);
+        if (index < 0) {
+            index = -index - 1;
         }
-
         listeners.add(index, listener);
     }
 
