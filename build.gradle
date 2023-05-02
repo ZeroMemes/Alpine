@@ -1,19 +1,18 @@
+plugins {
+    id 'java'
+}
+
 group 'me.zero'
 version '2.2.1'
 
-apply plugin: 'java'
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-sourceCompatibility = targetCompatibility = 1.8
-compileJava {
-    sourceCompatibility = targetCompatibility = 1.8
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
-
-build.dependsOn sourcesJar
+tasks.build.dependsOn tasks.sourcesJar
 
 repositories {
     mavenCentral()
