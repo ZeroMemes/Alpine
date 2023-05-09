@@ -30,11 +30,6 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     private final Consumer<T> callback;
 
     /**
-     * The filters that events being posted to this {@link Listener} are tested against.
-     */
-    private final Predicate<? super T>[] filters;
-
-    /**
      * Priority of this {@link Listener}.
      *
      * @see EventPriority
@@ -87,9 +82,8 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     @SafeVarargs
     @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
-        this.callback = callback;
+        this.callback = applyCallbackFilters(callback, filters);
         this.priority = priority;
-        this.filters = filters;
         this.target = target == null
             ? (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, callback.getClass())
             : target;
@@ -137,11 +131,6 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
      */
     @Override
     public void accept(T event) {
-        for (Predicate<? super T> filter : this.filters) {
-            if (!filter.test(event)) {
-                return;
-            }
-        }
         this.callback.accept(event);
     }
 
@@ -149,5 +138,39 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     public int compareTo(Listener<?> o) {
         // Listeners with higher priorities should come first, so negate the compare result
         return -Integer.compare(this.getPriority(), o.getPriority());
+    }
+
+    @SafeVarargs
+    private static <T> Consumer<T> applyCallbackFilters(Consumer<T> callback, Predicate<? super T>... filters) {
+        switch (filters.length) {
+            case 0: {
+                return callback;
+            }
+            case 1: {
+                final Predicate<? super T> f0 = filters[0];
+                return event -> {
+                    if (f0.test(event)) {
+                        callback.accept(event);
+                    }
+                };
+            }
+            case 2: {
+                final Predicate<? super T> f0 = filters[0], f1 = filters[1];
+                return event -> {
+                    if (f0.test(event) && f1.test(event)) {
+                        callback.accept(event);
+                    }
+                };
+            }
+            default: {
+                return event -> {
+                    for (Predicate<? super T> filter : filters) {
+                        if (!filter.test(event)) {
+                            return;
+                        }
+                    }
+                };
+            }
+        }
     }
 }
