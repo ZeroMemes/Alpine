@@ -36,24 +36,20 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
      */
     private final int priority;
 
-    @SuppressWarnings("unchecked")
     public Listener(Consumer<T> callback) {
-        this(null, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+        this(null, callback, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
     public Listener(Consumer<T> callback, int priority) {
-        this(null, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+        this(null, callback, priority, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback) {
-        this(target, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+        this(target, callback, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback, int priority) {
-        this(target, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+        this(target, callback, priority, emptyFilters());
     }
 
     @SafeVarargs
@@ -172,5 +168,10 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
                 };
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Predicate<? super T>[] emptyFilters() {
+        return (Predicate<? super T>[]) EMPTY_FILTERS;
     }
 }
