@@ -2,6 +2,7 @@ package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.EventPriority;
+import me.zero.alpine.util.Consumers;
 import net.jodah.typetools.TypeResolver;
 
 import java.util.function.Consumer;
@@ -78,7 +79,7 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     @SafeVarargs
     @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
-        this.callback = applyCallbackFilters(callback, filters);
+        this.callback = Consumers.predicated(callback, filters);
         this.priority = priority;
         this.target = target == null
             ? (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, callback.getClass())
@@ -134,41 +135,6 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     public int compareTo(Listener<?> o) {
         // Listeners with higher priorities should come first, so negate the compare result
         return -Integer.compare(this.getPriority(), o.getPriority());
-    }
-
-    @SafeVarargs
-    private static <T> Consumer<T> applyCallbackFilters(Consumer<T> callback, Predicate<? super T>... filters) {
-        switch (filters.length) {
-            case 0: {
-                return callback;
-            }
-            case 1: {
-                final Predicate<? super T> f0 = filters[0];
-                return event -> {
-                    if (f0.test(event)) {
-                        callback.accept(event);
-                    }
-                };
-            }
-            case 2: {
-                final Predicate<? super T> f0 = filters[0], f1 = filters[1];
-                return event -> {
-                    if (f0.test(event) && f1.test(event)) {
-                        callback.accept(event);
-                    }
-                };
-            }
-            default: {
-                return event -> {
-                    for (Predicate<? super T> filter : filters) {
-                        if (!filter.test(event)) {
-                            return;
-                        }
-                    }
-                    callback.accept(event);
-                };
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
