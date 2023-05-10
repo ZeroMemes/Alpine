@@ -165,6 +165,7 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
                             return;
                         }
                     }
+                    callback.accept(event);
                 };
             }
         }
