@@ -1,6 +1,5 @@
 package me.zero.alpine.bus;
 
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -14,7 +13,7 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     /**
      * List of attached event buses.
      */
-    protected final List<EventBus> attached = new CopyOnWriteArrayList<>();
+    protected final CopyOnWriteArrayList<EventBus> attached = new CopyOnWriteArrayList<>();
 
     public AttachableEventManager(String name) {
         super(name);
@@ -25,15 +24,16 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     }
 
     @Override
-    public void post(Object event) {
+    public <T> void post(T event) {
         super.post(event);
-        this.attached.forEach(bus -> bus.post(event));
+        for (EventBus bus : this.attached) {
+            bus.post(event);
+        }
     }
 
     @Override
     public void attach(EventBus bus) {
-        if (!this.attached.contains(bus))
-            this.attached.add(bus);
+        this.attached.addIfAbsent(bus);
     }
 
     @Override
