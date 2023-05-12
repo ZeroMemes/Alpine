@@ -28,7 +28,7 @@ public interface EventBus {
      *
      * @param listener The individual listener to subscribe
      */
-    void subscribe(Listener<?> listener);
+    <T> void subscribe(Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
@@ -70,7 +70,7 @@ public interface EventBus {
      *
      * @param listener The individual listener to unsubscribe
      */
-    void unsubscribe(Listener<?> listener);
+    <T> void unsubscribe(Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
@@ -106,7 +106,7 @@ public interface EventBus {
      * @param event Event being called
      * @see Listener#accept(Object)
      */
-    void post(Object event);
+    <T> void post(T event);
 
     /**
      * Posts a cancellable event and returns whether the event has been cancelled.

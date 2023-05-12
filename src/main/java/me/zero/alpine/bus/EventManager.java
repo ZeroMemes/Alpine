@@ -2,6 +2,7 @@ package me.zero.alpine.bus;
 
 import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
+import me.zero.alpine.listener.ListenerGroup;
 import me.zero.alpine.listener.Subscribe;
 import net.jodah.typetools.TypeResolver;
 
@@ -10,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,12 +27,12 @@ public class EventManager implements EventBus {
      * field instances. This reduces the amount of reflection calls that would otherwise be required when adding a
      * subscriber to the event bus.
      */
-    protected final Map<EventSubscriber, List<Listener<?>>> subscriberListenerCache = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<EventSubscriber, List<Listener<?>>> subscriberListenerCache;
 
     /**
      * Map containing all event classes and the currently subscribed listeners.
      */
-    protected final Map<Class<?>, CopyOnWriteArrayList<Listener<?>>> activeListeners = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<Class<?>, ListenerGroup<?>> activeListeners;
 
     /**
      * The name of this bus.
@@ -58,6 +58,8 @@ public class EventManager implements EventBus {
     }
 
     EventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
+        this.subscriberListenerCache = new ConcurrentHashMap<>();
+        this.activeListeners = new ConcurrentHashMap<>();
         this.name = name;
         this.recursiveDiscovery = recursiveDiscovery;
         this.superListeners = superListeners;
@@ -74,57 +76,30 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void subscribe(Listener<?> listener) {
-        List<Listener<?>> listeners = this.activeListeners.computeIfAbsent(listener.getTarget(), target -> new CopyOnWriteArrayList<>());
-
-        if (listeners.contains(listener)) {
-            return;
-        }
-
-        int index = Collections.binarySearch(listeners, listener);
-        if (index < 0) {
-            index = -index - 1;
-        }
-        listeners.add(index, listener);
+    public <T> void subscribe(Listener<T> listener) {
+        this.getOrCreateListenerGroup(listener.getTarget()).add(listener);
     }
 
     @Override
     public void unsubscribe(EventSubscriber subscriber) {
         List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
-        if (subscriberListeners == null)
-            return;
-
-        subscriberListeners.forEach(this::unsubscribe);
+        if (subscriberListeners != null) {
+            subscriberListeners.forEach(this::unsubscribe);
+        }
     }
 
     @Override
-    public void unsubscribe(Listener<?> listener) {
-        List<Listener<?>> eventListeners = this.activeListeners.get(listener.getTarget());
-        if (eventListeners == null)
-            return;
-
-        eventListeners.remove(listener);
-        if (eventListeners.isEmpty()) {
-            this.activeListeners.remove(listener.getTarget());
+    public <T> void unsubscribe(Listener<T> listener) {
+        ListenerGroup<?> list = this.activeListeners.get(listener.getTarget());
+        if (list != null) {
+            list.remove(listener);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void post(Object event) {
-        if (this.superListeners) {
-            // Iterate through all active listeners. If the event is assignable to the target, post as the target type.
-            this.activeListeners.forEach((target, listeners) -> {
-                if (target.isAssignableFrom(event.getClass())) {
-                    listeners.forEach(listener -> ((Listener<Object>) listener).accept(event));
-                }
-            });
-        } else {
-            CopyOnWriteArrayList<Listener<?>> listeners = this.activeListeners.get(event.getClass());
-            if (listeners != null) {
-                listeners.forEach(listener -> ((Listener<Object>) listener).accept(event));
-            }
-        }
+    public <T> void post(T event) {
+        this.getOrCreateListenerGroup((Class<T>) event.getClass()).post(event);
     }
 
     @Override
@@ -136,7 +111,7 @@ public class EventManager implements EventBus {
         Class<?> cls = subscriber.getClass();
         Stream<Field> fields = Stream.empty();
         do {
-            fields = Stream.concat(fields, getListenersFields(cls));
+            fields = Stream.concat(fields, getListenerFields(cls));
             cls = cls.getSuperclass();
         } while (this.recursiveDiscovery && cls != null);
 
@@ -145,7 +120,46 @@ public class EventManager implements EventBus {
         );
     }
 
-    protected static Stream<Field> getListenersFields(Class<?> cls) {
+    @SuppressWarnings("unchecked")
+    protected <T> ListenerGroup<T> getOrCreateListenerGroup(Class<T> target) {
+        // This method of initialization results in much faster dispatch than 'computeIfAbsent'
+        // It also guarantees that only one thread can call 'createListenerGroup' at a time
+        final ListenerGroup<T> existing = (ListenerGroup<T>) this.activeListeners.get(target);
+        if (existing != null) {
+            return existing;
+        }
+        synchronized (this.activeListeners) {
+            // Fetch the group again, as it could've been initialized since the lock was released.
+            final ListenerGroup<T> group = (ListenerGroup<T>) this.activeListeners.get(target);
+            if (group == null) {
+                ListenerGroup<T> list = this.createListenerGroup(target);
+                this.activeListeners.put(target, list);
+                return list;
+            } else {
+                return group;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> ListenerGroup<T> createListenerGroup(Class<T> target) {
+        ListenerGroup<T> group = new ListenerGroup<>();
+        if (this.superListeners) {
+            this.activeListeners.forEach((activeTarget, activeGroup) -> {
+                // Link target to inherited types
+                if (activeTarget.isAssignableFrom(target)) {
+                    group.addChild((ListenerGroup<? super T>) activeGroup);
+                }
+                // Link inheriting types to target
+                if (target.isAssignableFrom(activeTarget)) {
+                    ((ListenerGroup<? extends T>) activeGroup).addChild(group);
+                }
+            });
+        }
+        return group;
+    }
+
+    protected static Stream<Field> getListenerFields(Class<?> cls) {
         return Arrays.stream(cls.getDeclaredFields()).filter(EventManager::isListenerField);
     }
 
