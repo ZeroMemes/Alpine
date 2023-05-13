@@ -27,6 +27,7 @@ public interface EventBus {
      * Subscribes an individual listener object.
      *
      * @param listener The individual listener to subscribe
+     * @param <T> The target event type
      */
     <T> void subscribe(Listener<T> listener);
 
@@ -69,6 +70,7 @@ public interface EventBus {
      * Unsubscribe an individual listener object.
      *
      * @param listener The individual listener to unsubscribe
+     * @param <T> The target event type
      */
     <T> void unsubscribe(Listener<T> listener);
 
@@ -105,6 +107,7 @@ public interface EventBus {
      *
      * @param event Event being called
      * @see Listener#accept(Object)
+     * @param <T> The event type
      */
     <T> void post(T event);
 
