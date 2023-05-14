@@ -1,18 +1,18 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'maven-publish'
 }
 
-group 'me.zero'
+group 'com.github.ZeroMemes'
 version '3.0.0'
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-
-tasks.register('sourcesJar', Jar) {
-    dependsOn classes
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+    withJavadocJar()
+    withSourcesJar()
 }
-tasks.build.dependsOn tasks.sourcesJar
 
 repositories {
     mavenCentral()
@@ -20,4 +20,45 @@ repositories {
 
 dependencies {
     implementation 'net.jodah:typetools:0.6.3'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Alpine'
+                description = 'A lightweight, pub/sub event system for Java 8+'
+                url = 'https://github.com/ZeroMemes/Alpine'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://github.com/ZeroMemes/Alpine/blob/master/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ZeroMemes'
+                        name = 'Brady Hahn'
+                        email = 'zeromemesdev@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/ZeroMemes/Alpine.git'
+                    url = 'https://github.com/ZeroMemes/Alpine'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            if (System.env.MAVEN_DIR) {
+                url = 'file://' + System.env.MAVEN_DIR
+            } else {
+                url = layout.buildDirectory.dir('repo')
+            }
+        }
+    }
 }
