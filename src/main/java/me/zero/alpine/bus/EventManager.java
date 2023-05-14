@@ -1,5 +1,6 @@
 package me.zero.alpine.bus;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerGroup;
@@ -32,7 +33,9 @@ public class EventManager implements EventBus {
     /**
      * Map containing all event classes and the currently subscribed listeners.
      */
-    protected final ConcurrentHashMap<Class<?>, ListenerGroup<?>> activeListeners;
+    protected volatile Event2ListenersMap activeListeners;
+
+    protected final Object activeListenersWriteLock;
 
     /**
      * The name of this bus.
@@ -59,7 +62,8 @@ public class EventManager implements EventBus {
 
     EventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
         this.subscriberListenerCache = new ConcurrentHashMap<>();
-        this.activeListeners = new ConcurrentHashMap<>();
+        this.activeListeners = new Event2ListenersMap();
+        this.activeListenersWriteLock = new Object();
         this.name = name;
         this.recursiveDiscovery = recursiveDiscovery;
         this.superListeners = superListeners;
@@ -128,12 +132,21 @@ public class EventManager implements EventBus {
         if (existing != null) {
             return existing;
         }
-        synchronized (this.activeListeners) {
+        synchronized (this.activeListenersWriteLock) {
             // Fetch the group again, as it could've been initialized since the lock was released.
             final ListenerGroup<T> group = (ListenerGroup<T>) this.activeListeners.get(target);
             if (group == null) {
                 ListenerGroup<T> list = this.createListenerGroup(target);
-                this.activeListeners.put(target, list);
+
+                // If insertion of a new key will require a rehash, then clone the map and reassign the field.
+                if (this.activeListeners.needsRehash()) {
+                    final Event2ListenersMap newMap = this.activeListeners.clone();
+                    newMap.put(target, list);
+                    this.activeListeners = newMap;
+                } else {
+                    this.activeListeners.put(target, list);
+                }
+
                 return list;
             } else {
                 return group;
@@ -193,5 +206,20 @@ public class EventManager implements EventBus {
 
     public static EventBusBuilder<EventBus> builder() {
         return new EventBusBuilder<>();
+    }
+
+    protected static final class Event2ListenersMap extends Object2ObjectOpenHashMap<Class<?>, ListenerGroup<?>> {
+
+        /**
+         * @return {@code true} if the next insertion of a new key will require a rehash.
+         */
+        public boolean needsRehash() {
+            return this.size >= this.maxFill;
+        }
+
+        @Override
+        public Event2ListenersMap clone() {
+            return (Event2ListenersMap) super.clone();
+        }
     }
 }

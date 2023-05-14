@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     implementation 'net.jodah:typetools:0.6.3'
+    api 'it.unimi.dsi:fastutil:8.5.12'
 }
 
 publishing {
