@@ -9,4 +9,4 @@ import me.zero.alpine.bus.EventBus;
  * @author Brady
  * @since 9/15/2018
  */
-public interface EventSubscriber {}
+public interface Subscriber {}

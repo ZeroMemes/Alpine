@@ -1,8 +1,8 @@
 package me.zero.alpine.bus;
 
 import me.zero.alpine.event.Cancellable;
-import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
+import me.zero.alpine.listener.Subscriber;
 
 /**
  * The core of an event-driven application.
@@ -17,11 +17,11 @@ public interface EventBus {
     String name();
 
     /**
-     * Discovers all the valid Listener instances defined by the specified {@link EventSubscriber} and adds them to the bus.
+     * Discovers all the valid Listener instances defined by the specified {@link Subscriber} and adds them to the bus.
      *
      * @param subscriber The subscriber to be added
      */
-    void subscribe(EventSubscriber subscriber);
+    void subscribe(Subscriber subscriber);
 
     /**
      * Subscribes an individual listener object.
@@ -33,19 +33,19 @@ public interface EventBus {
 
     /**
      * @param subscribers An array of subscribers
-     * @see #subscribe(EventSubscriber)
+     * @see #subscribe(Subscriber)
      */
-    default void subscribeAll(EventSubscriber... subscribers) {
-        for (EventSubscriber subscriber : subscribers) {
+    default void subscribeAll(Subscriber... subscribers) {
+        for (Subscriber subscriber : subscribers) {
             this.subscribe(subscriber);
         }
     }
 
     /**
      * @param subscribers An iterable of subscribers
-     * @see #subscribe(EventSubscriber)
+     * @see #subscribe(Subscriber)
      */
-    default void subscribeAll(Iterable<EventSubscriber> subscribers) {
+    default void subscribeAll(Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::subscribe);
     }
 
@@ -60,11 +60,11 @@ public interface EventBus {
     }
 
     /**
-     * Removes all the previously identified Listener instances defined by the specified {@link EventSubscriber}.
+     * Removes all the previously identified Listener instances defined by the specified {@link Subscriber}.
      *
      * @param subscriber The subscriber to be unsubscribed from the event bus
      */
-    void unsubscribe(EventSubscriber subscriber);
+    void unsubscribe(Subscriber subscriber);
 
     /**
      * Unsubscribe an individual listener object.
@@ -76,19 +76,19 @@ public interface EventBus {
 
     /**
      * @param subscribers An array of subscribers
-     * @see #unsubscribe(EventSubscriber)
+     * @see #unsubscribe(Subscriber)
      */
-    default void unsubscribeAll(EventSubscriber... subscribers) {
-        for (EventSubscriber subscriber : subscribers) {
+    default void unsubscribeAll(Subscriber... subscribers) {
+        for (Subscriber subscriber : subscribers) {
             this.unsubscribe(subscriber);
         }
     }
 
     /**
      * @param subscribers An iterable of subscribers
-     * @see #unsubscribe(EventSubscriber)
+     * @see #unsubscribe(Subscriber)
      */
-    default void unsubscribeAll(Iterable<EventSubscriber> subscribers) {
+    default void unsubscribeAll(Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::unsubscribe);
     }
 

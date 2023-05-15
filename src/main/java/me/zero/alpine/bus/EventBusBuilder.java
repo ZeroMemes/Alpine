@@ -1,7 +1,7 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
+import me.zero.alpine.listener.Subscriber;
 
 import java.util.Objects;
 
@@ -32,7 +32,7 @@ public final class EventBusBuilder<T extends EventBus> {
 
     /**
      * Enables recursive {@link Listener} discovery, allowing {@link Listener} fields in superclasses of
-     * {@link EventSubscriber}s to be discovered and registered.
+     * {@link Subscriber}s to be discovered and registered.
      *
      * @return This builder
      */

@@ -1,16 +1,18 @@
 package me.zero.alpine.bus;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerGroup;
 import me.zero.alpine.listener.Subscribe;
+import me.zero.alpine.listener.Subscriber;
 import net.jodah.typetools.TypeResolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +30,7 @@ public class EventManager implements EventBus {
      * field instances. This reduces the amount of reflection calls that would otherwise be required when adding a
      * subscriber to the event bus.
      */
-    protected final ConcurrentHashMap<EventSubscriber, List<Listener<?>>> subscriberListenerCache;
+    protected final ConcurrentHashMap<Subscriber, List<Listener<?>>> subscriberListenerCache;
 
     /**
      * Map containing all event classes and the currently subscribed listeners.
@@ -73,7 +75,7 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void subscribe(EventSubscriber subscriber) {
+    public void subscribe(Subscriber subscriber) {
         this.subscriberListenerCache.computeIfAbsent(subscriber, this::getListeners).forEach(this::subscribe);
     }
 
@@ -83,7 +85,7 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public void unsubscribe(EventSubscriber subscriber) {
+    public void unsubscribe(Subscriber subscriber) {
         List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
         if (subscriberListeners != null) {
             subscriberListeners.forEach(this::unsubscribe);
@@ -109,7 +111,7 @@ public class EventManager implements EventBus {
         return "EventManager{name='" + this.name + "'}";
     }
 
-    protected List<Listener<?>> getListeners(EventSubscriber subscriber) {
+    protected List<Listener<?>> getListeners(Subscriber subscriber) {
         Class<?> cls = subscriber.getClass();
         Stream<Field> fields = Stream.empty();
         do {
@@ -181,7 +183,7 @@ public class EventManager implements EventBus {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> Listener<T> asListener(EventSubscriber subscriber, Field field) {
+    protected static <T> Listener<T> asListener(Subscriber subscriber, Field field) {
         try {
             if (!(field.getGenericType() instanceof ParameterizedType)) {
                 throw new IllegalArgumentException("Listener fields must have a specified type parameter!");
