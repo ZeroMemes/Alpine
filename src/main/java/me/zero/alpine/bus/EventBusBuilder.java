@@ -11,9 +11,9 @@ import java.util.Objects;
  */
 public final class EventBusBuilder<T extends EventBus> {
 
-    private String name = null;
-    private boolean recursiveDiscovery = false;
-    private boolean superListeners = false;
+    String name = null;
+    boolean recursiveDiscovery = false;
+    boolean superListeners = false;
     private boolean attachable = false;
 
     EventBusBuilder() {}
@@ -71,7 +71,7 @@ public final class EventBusBuilder<T extends EventBus> {
     public T build() {
         Objects.requireNonNull(this.name);
         return this.attachable
-            ? (T) new AttachableEventManager(this.name, this.recursiveDiscovery, this.superListeners)
-            : (T) new EventManager(this.name, this.recursiveDiscovery, this.superListeners);
+            ? (T) new AttachableEventManager(this)
+            : (T) new EventManager(this);
     }
 }

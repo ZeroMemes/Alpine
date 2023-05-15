@@ -43,30 +43,28 @@ public class EventManager implements EventBus {
     protected final String name;
 
     /**
-     * Whether to search superclasses of an instance for Listener fields. Due to the caching functionality provided by
-     * {@link #subscriberListenerCache}, modifying this field outside the constructor can result in inconsistent
-     * behavior when adding a {@link EventSubscriber} to the bus. It is therefore recommended that subclasses of this
-     * {@link EventBus} implementation set the desired value of this flag in their constructor, prior to when any
-     * {@link EventSubscriber}s would be added via any of the relevant {@code subscribe} methods.
+     * Whether to search superclasses of an instance for Listener fields.
      */
-    protected boolean recursiveDiscovery;
+    protected final boolean recursiveDiscovery;
 
     /**
      * Whether to post an event to all Listeners that target a supertype of the event.
      */
-    protected boolean superListeners;
+    protected final boolean superListeners;
 
     public EventManager(String name) {
-        this(name, false, false);
+        this(new EventBusBuilder<>().setName(name));
     }
 
-    EventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
+    public EventManager(EventBusBuilder<?> builder) {
         this.subscriberListenerCache = new ConcurrentHashMap<>();
         this.activeListeners = new Event2ListenersMap();
         this.activeListenersWriteLock = new Object();
-        this.name = name;
-        this.recursiveDiscovery = recursiveDiscovery;
-        this.superListeners = superListeners;
+
+        // Copy settings from builder
+        this.name = builder.name;
+        this.recursiveDiscovery = builder.recursiveDiscovery;
+        this.superListeners = builder.superListeners;
     }
 
     @Override

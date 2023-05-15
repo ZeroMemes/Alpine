@@ -19,8 +19,8 @@ public class AttachableEventManager extends EventManager implements AttachableEv
         super(name);
     }
 
-    AttachableEventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
-        super(name, recursiveDiscovery, superListeners);
+    AttachableEventManager(EventBusBuilder<?> builder) {
+        super(builder);
     }
 
     @Override
