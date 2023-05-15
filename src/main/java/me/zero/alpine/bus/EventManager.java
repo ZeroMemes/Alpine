@@ -1,6 +1,6 @@
 package me.zero.alpine.bus;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.zero.alpine.listener.EventSubscriber;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerGroup;
@@ -206,7 +206,7 @@ public class EventManager implements EventBus {
         return new EventBusBuilder<>();
     }
 
-    protected static final class Event2ListenersMap extends Object2ObjectOpenHashMap<Class<?>, ListenerGroup<?>> {
+    protected static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerGroup<?>> {
 
         /**
          * @return {@code true} if the next insertion of a new key will require a rehash.
