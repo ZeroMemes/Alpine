@@ -14,13 +14,15 @@ public final class ListenerGroup<T> {
     private Listener<T>[] listeners;
     private final Object lock;
 
+    private final ListenerExceptionHandler exceptionHandler;
     private final List<ListenerGroup<? super T>> children;
     private Consumer<T> dispatcher;
 
-    public ListenerGroup() {
+    public ListenerGroup(ListenerExceptionHandler exceptionHandler) {
         this.listeners = newListenerArray(0);
         this.lock = new Object();
         this.children = new ArrayList<>();
+        this.exceptionHandler = exceptionHandler;
         this.dispatcher = this.createDispatcher();
     }
 
@@ -31,9 +33,15 @@ public final class ListenerGroup<T> {
     private void dispatch(T event) {
         final Listener<T>[] arr = this.listeners;
         int i = 0;
-        while (i != arr.length) {
-            arr[i].accept(event);
-            i++;
+        try {
+            while (i != arr.length) {
+                arr[i].accept(event);
+                i++;
+            }
+        } catch (Throwable cause) {
+            if (this.exceptionHandler.handleException(event, arr[i], cause)) {
+                throw cause;
+            }
         }
     }
 

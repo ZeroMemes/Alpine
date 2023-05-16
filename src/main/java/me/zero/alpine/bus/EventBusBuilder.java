@@ -1,6 +1,7 @@
 package me.zero.alpine.bus;
 
 import me.zero.alpine.listener.Listener;
+import me.zero.alpine.listener.ListenerExceptionHandler;
 import me.zero.alpine.listener.Subscriber;
 
 import java.util.Objects;
@@ -14,6 +15,7 @@ public final class EventBusBuilder<T extends EventBus> {
     String name = null;
     boolean recursiveDiscovery = false;
     boolean superListeners = false;
+    ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
     private boolean attachable = false;
 
     EventBusBuilder() {}
@@ -49,6 +51,19 @@ public final class EventBusBuilder<T extends EventBus> {
      */
     public EventBusBuilder<T> setSuperListeners() {
         this.superListeners = true;
+        return this;
+    }
+
+    /**
+     * Sets the exception handler that will be invoked when an exception is thrown by a Listener.
+     *
+     * @see ListenerExceptionHandler#DEFAULT
+     *
+     * @param exceptionHandler The exception handler
+     * @return This builder
+     */
+    public EventBusBuilder<T> setExceptionHandler(ListenerExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
         return this;
     }
 

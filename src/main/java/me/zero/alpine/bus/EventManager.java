@@ -1,10 +1,7 @@
 package me.zero.alpine.bus;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import me.zero.alpine.listener.Listener;
-import me.zero.alpine.listener.ListenerGroup;
-import me.zero.alpine.listener.Subscribe;
-import me.zero.alpine.listener.Subscriber;
+import me.zero.alpine.listener.*;
 import net.jodah.typetools.TypeResolver;
 
 import java.lang.reflect.Field;
@@ -54,6 +51,8 @@ public class EventManager implements EventBus {
      */
     protected final boolean superListeners;
 
+    protected final ListenerExceptionHandler exceptionHandler;
+
     public EventManager(String name) {
         this(new EventBusBuilder<>().setName(name));
     }
@@ -67,6 +66,7 @@ public class EventManager implements EventBus {
         this.name = builder.name;
         this.recursiveDiscovery = builder.recursiveDiscovery;
         this.superListeners = builder.superListeners;
+        this.exceptionHandler = builder.exceptionHandler;
     }
 
     @Override
@@ -156,7 +156,7 @@ public class EventManager implements EventBus {
 
     @SuppressWarnings("unchecked")
     protected <T> ListenerGroup<T> createListenerGroup(Class<T> target) {
-        ListenerGroup<T> group = new ListenerGroup<>();
+        ListenerGroup<T> group = new ListenerGroup<>(this.exceptionHandler);
         if (this.superListeners) {
             this.activeListeners.forEach((activeTarget, activeGroup) -> {
                 // Link target to inherited types
