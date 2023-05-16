@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  */
 public final class ListenerGroup<T> {
 
-    private Listener<T>[] listeners;
+    private volatile Listener<T>[] listeners;
     private final Object lock;
 
     private final ListenerExceptionHandler exceptionHandler;
