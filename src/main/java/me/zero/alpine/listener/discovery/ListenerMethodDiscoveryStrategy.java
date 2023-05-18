@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Brady
- * @since 5/17/2023
+ * @since 3.0.0
  */
 public enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
     INSTANCE;

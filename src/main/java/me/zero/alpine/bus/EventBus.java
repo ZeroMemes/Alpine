@@ -10,16 +10,21 @@ import me.zero.alpine.listener.Subscriber;
  * Used to dispatch events to {@link Listener}s, and manage the active {@link Listener}s.
  *
  * @author Brady
- * @since 5/27/2017
+ * @since 1.2
  */
 public interface EventBus {
 
+    /**
+     * @return The name of this event bus
+     * @since 2.0.0
+     */
     String name();
 
     /**
      * Discovers all the valid Listener instances defined by the specified {@link Subscriber} and adds them to the bus.
      *
      * @param subscriber The subscriber to be added
+     * @since 1.2
      */
     void subscribe(Subscriber subscriber);
 
@@ -28,12 +33,14 @@ public interface EventBus {
      *
      * @param listener The individual listener to subscribe
      * @param <T> The target event type
+     * @since 1.8
      */
     <T> void subscribe(Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
      * @see #subscribe(Subscriber)
+     * @since 1.7
      */
     default void subscribeAll(Subscriber... subscribers) {
         for (Subscriber subscriber : subscribers) {
@@ -44,6 +51,7 @@ public interface EventBus {
     /**
      * @param subscribers An iterable of subscribers
      * @see #subscribe(Subscriber)
+     * @since 1.7
      */
     default void subscribeAll(Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::subscribe);
@@ -52,6 +60,7 @@ public interface EventBus {
     /**
      * @param listeners An array of listeners
      * @see #subscribe(Listener)
+     * @since 1.9
      */
     default void subscribeAll(Listener<?>... listeners) {
         for (Listener<?> listener : listeners) {
@@ -63,6 +72,7 @@ public interface EventBus {
      * Removes all the previously identified Listener instances defined by the specified {@link Subscriber}.
      *
      * @param subscriber The subscriber to be unsubscribed from the event bus
+     * @since 1.2
      */
     void unsubscribe(Subscriber subscriber);
 
@@ -71,12 +81,14 @@ public interface EventBus {
      *
      * @param listener The individual listener to unsubscribe
      * @param <T> The target event type
+     * @since 1.8
      */
     <T> void unsubscribe(Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
      * @see #unsubscribe(Subscriber)
+     * @since 1.7
      */
     default void unsubscribeAll(Subscriber... subscribers) {
         for (Subscriber subscriber : subscribers) {
@@ -87,6 +99,7 @@ public interface EventBus {
     /**
      * @param subscribers An iterable of subscribers
      * @see #unsubscribe(Subscriber)
+     * @since 1.7
      */
     default void unsubscribeAll(Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::unsubscribe);
@@ -95,6 +108,7 @@ public interface EventBus {
     /**
      * @param listeners An array of listeners
      * @see #unsubscribe(Listener)
+     * @since 1.9
      */
     default void unsubscribeAll(Listener<?>... listeners) {
         for (Listener<?> listener : listeners) {
@@ -108,6 +122,7 @@ public interface EventBus {
      * @param event Event being called
      * @see Listener#accept(Object)
      * @param <T> The event type
+     * @since 1.2
      */
     <T> void post(T event);
 
@@ -116,6 +131,7 @@ public interface EventBus {
      *
      * @param event Event being called
      * @return Whether the event has been cancelled
+     * @since 2.0.0
      */
     default boolean post(Cancellable event) {
         this.post((Object) event);

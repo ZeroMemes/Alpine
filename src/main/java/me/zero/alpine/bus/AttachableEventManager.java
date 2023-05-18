@@ -6,7 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Implementation of {@link EventManager} that is an {@link AttachableEventBus}.
  *
  * @author Brady
- * @since 9/15/2018
+ * @since 1.8
  */
 public class AttachableEventManager extends EventManager implements AttachableEventBus {
 

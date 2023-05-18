@@ -7,6 +7,6 @@ import me.zero.alpine.bus.EventBus;
  * not require any methods to be implemented, the only purpose is to make types containing {@link Listener}s explicit.
  *
  * @author Brady
- * @since 9/15/2018
+ * @since 1.8
  */
 public interface Subscriber {}

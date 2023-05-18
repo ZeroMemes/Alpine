@@ -6,7 +6,7 @@ package me.zero.alpine.bus;
  * to applications to use their own event bus(es).
  *
  * @author Brady
- * @since 9/15/2018
+ * @since 1.8
  */
 public interface AttachableEventBus extends EventBus {
 
@@ -15,6 +15,7 @@ public interface AttachableEventBus extends EventBus {
      * no effect if the given bus has already been attached to this bus.
      *
      * @param bus The bus
+     * @since 1.8
      */
     void attach(EventBus bus);
 
@@ -23,6 +24,7 @@ public interface AttachableEventBus extends EventBus {
      * already been called on the given bus.
      *
      * @param bus The bus
+     * @since 1.8
      */
     void detach(EventBus bus);
 }

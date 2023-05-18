@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
  * invocation by their target event.
  *
  * @author Brady
- * @since 1/21/2017
+ * @since 1.2
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Subscribe {}

@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 /**
  * @author Brady
- * @since 5/14/2023
+ * @since 3.0.0
  */
 public final class Util {
 

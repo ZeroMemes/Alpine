@@ -5,7 +5,7 @@ import me.zero.alpine.listener.Subscriber;
 
 /**
  * @author Brady
- * @since 5/17/2023
+ * @since 3.0.0
  */
 @FunctionalInterface
 public interface ListenerCandidate<T> {

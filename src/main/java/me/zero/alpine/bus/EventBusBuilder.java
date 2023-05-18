@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * @author Brady
- * @since 6/22/2022
+ * @since 2.0.0
  */
 public final class EventBusBuilder<T extends EventBus> {
 
@@ -26,6 +26,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @param name The name
      * @return This builder
      * @see EventBus#name()
+     * @since 2.0.0
      */
     public EventBusBuilder<T> setName(String name) {
         this.name = name;
@@ -37,6 +38,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * {@link Subscriber}s to be discovered and registered.
      *
      * @return This builder
+     * @since 2.0.0
      */
     public EventBusBuilder<T> setRecursiveDiscovery() {
         this.recursiveDiscovery = true;
@@ -48,6 +50,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * {@link Listener}s directly targeting the event type.
      *
      * @return This builder
+     * @since 2.0.0
      */
     public EventBusBuilder<T> setSuperListeners() {
         this.superListeners = true;
@@ -61,6 +64,7 @@ public final class EventBusBuilder<T extends EventBus> {
      *
      * @param exceptionHandler The exception handler
      * @return This builder
+     * @since 3.0.0
      */
     public EventBusBuilder<T> setExceptionHandler(ListenerExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
@@ -71,6 +75,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * Causes this builder to create an {@link EventBus} which implements {@link AttachableEventBus}.
      *
      * @return This builder
+     * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
     public EventBusBuilder<AttachableEventBus> setAttachable() {
@@ -81,6 +86,7 @@ public final class EventBusBuilder<T extends EventBus> {
 
     /**
      * @return The constructed {@link EventBus}
+     * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
     public T build() {
