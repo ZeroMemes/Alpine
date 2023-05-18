@@ -2,7 +2,7 @@ package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.EventPriority;
-import me.zero.alpine.util.Consumers;
+import me.zero.alpine.util.Util;
 import net.jodah.typetools.TypeResolver;
 
 import java.util.function.Consumer;
@@ -79,7 +79,7 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
     @SafeVarargs
     @SuppressWarnings("unchecked")
     public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
-        this.callback = Consumers.predicated(callback, filters);
+        this.callback = Util.predicated(callback, filters);
         this.priority = priority;
         this.target = target == null
             ? (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, callback.getClass())
