@@ -58,7 +58,9 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * Sets the exception handler that will be invoked when an exception is thrown by a Listener.
+     * Sets the exception handler that will be invoked when an exception is thrown by a Listener. The specified
+     * exception handler may be {@code null}, indicating that no explicit exception handling is to occur, and
+     * exceptions should just propagate upwards.
      *
      * @see ListenerExceptionHandler#DEFAULT
      *
@@ -69,6 +71,16 @@ public final class EventBusBuilder<T extends EventBus> {
     public EventBusBuilder<T> setExceptionHandler(ListenerExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
         return this;
+    }
+
+    /**
+     * Disables exception handling. Equivalent to {@code setExceptionHandler(null)}.
+     *
+     * @return This builder
+     * @since 3.0.0
+     */
+    public EventBusBuilder<T> noExceptionHandler() {
+        return this.setExceptionHandler(null);
     }
 
     /**

@@ -1,6 +1,7 @@
 package me.zero.alpine.bus;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.*;
 import net.jodah.typetools.TypeResolver;
 
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
  * Default implementation of {@link EventBus}.
  *
  * @author Brady
- * @since 1/19/2017
+ * @since 1.2
  */
 public class EventManager implements EventBus {
 
@@ -46,12 +47,9 @@ public class EventManager implements EventBus {
      */
     protected final boolean recursiveDiscovery;
 
-    /**
-     * Whether to post an event to all Listeners that target a supertype of the event.
-     */
-    protected final boolean superListeners;
+    protected final EventDispatcher eventDispatcher;
 
-    protected final ListenerExceptionHandler exceptionHandler;
+    protected final ListenerListFactory listenerListFactory;
 
     public EventManager(String name) {
         this(new EventBusBuilder<>().setName(name));
@@ -65,8 +63,38 @@ public class EventManager implements EventBus {
         // Copy settings from builder
         this.name = builder.name;
         this.recursiveDiscovery = builder.recursiveDiscovery;
-        this.superListeners = builder.superListeners;
-        this.exceptionHandler = builder.exceptionHandler;
+        this.eventDispatcher = builder.exceptionHandler == null
+            ? EventDispatcher.noExceptionHandler()
+            : EventDispatcher.withExceptionHandler(builder.exceptionHandler);
+
+        if (builder.superListeners) {
+            this.listenerListFactory = new ListenerListFactory() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public <T> ListenerList<T> create(Class<T> cls) {
+                    ListenerGroup<T> group = new ListenerGroup<>(new CopyOnWriteListenerList<>());
+                    EventManager.this.activeListeners.forEach((activeTarget, activeGroup) -> {
+                        // Link target to inherited types
+                        if (activeTarget.isAssignableFrom(cls)) {
+                            group.addChild((ListenerGroup<? super T>) activeGroup);
+                        }
+                        // Link inheriting types to target
+                        if (cls.isAssignableFrom(activeTarget)) {
+                            ((ListenerGroup<? extends T>) activeGroup).addChild(group);
+                        }
+                    });
+                    return group;
+                }
+            };
+        } else {
+            this.listenerListFactory = new ListenerListFactory() {
+
+                @Override
+                public <T> ListenerList<T> create(Class<T> cls) {
+                    return new CopyOnWriteListenerList<>();
+                }
+            };
+        }
     }
 
     @Override
@@ -81,7 +109,7 @@ public class EventManager implements EventBus {
 
     @Override
     public <T> void subscribe(Listener<T> listener) {
-        this.getOrCreateListenerGroup(listener.getTarget()).add(listener);
+        this.getOrCreateListenerList(listener.getTarget()).add(listener);
     }
 
     @Override
@@ -92,9 +120,10 @@ public class EventManager implements EventBus {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> void unsubscribe(Listener<T> listener) {
-        ListenerGroup<?> list = this.activeListeners.get(listener.getTarget());
+        ListenerList<T> list = (ListenerList<T>) this.activeListeners.get(listener.getTarget());
         if (list != null) {
             list.remove(listener);
         }
@@ -103,7 +132,7 @@ public class EventManager implements EventBus {
     @SuppressWarnings("unchecked")
     @Override
     public <T> void post(T event) {
-        this.getOrCreateListenerGroup((Class<T>) event.getClass()).post(event);
+        this.getOrCreateListenerList((Class<T>) event.getClass()).post(event, this.eventDispatcher);
     }
 
     @Override
@@ -125,18 +154,18 @@ public class EventManager implements EventBus {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> ListenerGroup<T> getOrCreateListenerGroup(Class<T> target) {
+    protected <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
         // This method of initialization results in much faster dispatch than 'computeIfAbsent'
-        // It also guarantees that only one thread can call 'createListenerGroup' at a time
-        final ListenerGroup<T> existing = (ListenerGroup<T>) this.activeListeners.get(target);
+        // It also guarantees that only one thread can call 'createListenerList' at a time
+        final ListenerList<T> existing = (ListenerList<T>) this.activeListeners.get(target);
         if (existing != null) {
             return existing;
         }
         synchronized (this.activeListenersWriteLock) {
             // Fetch the group again, as it could've been initialized since the lock was released.
-            final ListenerGroup<T> group = (ListenerGroup<T>) this.activeListeners.get(target);
+            final ListenerList<T> group = (ListenerList<T>) this.activeListeners.get(target);
             if (group == null) {
-                ListenerGroup<T> list = this.createListenerGroup(target);
+                ListenerList<T> list = this.listenerListFactory.create(target);
 
                 // If insertion of a new key will require a rehash, then clone the map and reassign the field.
                 if (this.activeListeners.needsRehash()) {
@@ -152,24 +181,6 @@ public class EventManager implements EventBus {
                 return group;
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> ListenerGroup<T> createListenerGroup(Class<T> target) {
-        ListenerGroup<T> group = new ListenerGroup<>(this.exceptionHandler);
-        if (this.superListeners) {
-            this.activeListeners.forEach((activeTarget, activeGroup) -> {
-                // Link target to inherited types
-                if (activeTarget.isAssignableFrom(target)) {
-                    group.addChild((ListenerGroup<? super T>) activeGroup);
-                }
-                // Link inheriting types to target
-                if (target.isAssignableFrom(activeTarget)) {
-                    ((ListenerGroup<? extends T>) activeGroup).addChild(group);
-                }
-            });
-        }
-        return group;
     }
 
     protected static Stream<Field> getListenerFields(Class<?> cls) {
@@ -208,7 +219,7 @@ public class EventManager implements EventBus {
         return new EventBusBuilder<>();
     }
 
-    protected static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerGroup<?>> {
+    protected static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerList<?>> {
 
         /**
          * @return {@code true} if the next insertion of a new key will require a rehash.

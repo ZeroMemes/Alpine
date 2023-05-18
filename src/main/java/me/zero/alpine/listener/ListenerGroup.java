@@ -1,159 +1,109 @@
 package me.zero.alpine.listener;
 
+import me.zero.alpine.event.dispatch.EventDispatcher;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * @author Brady
- * @since 5/10/2023
+ * @since 3.0.0
  */
-public final class ListenerGroup<T> {
+public class ListenerGroup<T> implements ListenerList<T> {
 
-    private volatile Listener<T>[] listeners;
-    private final Object lock;
-
-    private final ListenerExceptionHandler exceptionHandler;
+    private final ListenerList<T> backing;
     private final List<ListenerGroup<? super T>> children;
-    private Consumer<T> dispatcher;
+    private BiConsumer<T, EventDispatcher> distributor;
 
-    public ListenerGroup(ListenerExceptionHandler exceptionHandler) {
-        this.listeners = newListenerArray(0);
-        this.lock = new Object();
+    public ListenerGroup(ListenerList<T> backing) {
+        this.backing = backing;
         this.children = new ArrayList<>();
-        this.exceptionHandler = exceptionHandler;
-        this.dispatcher = this.createDispatcher();
+        this.distributor = this.createDistributor();
     }
 
-    public void post(T event) {
-        this.dispatcher.accept(event);
+    @Override
+    public void post(T event, EventDispatcher dispatcher) {
+        this.distributor.accept(event, dispatcher);
     }
 
-    private void dispatch(T event) {
-        final Listener<T>[] arr = this.listeners;
-        int i = 0;
-        try {
-            while (i != arr.length) {
-                arr[i].accept(event);
-                i++;
-            }
-        } catch (Throwable cause) {
-            if (this.exceptionHandler.handleException(event, arr[i], cause)) {
-                throw cause;
-            }
-        }
+    @Override
+    public boolean add(Listener<T> listener) {
+        return this.backing.add(listener);
     }
 
-    public void add(Listener<T> listener) {
-        synchronized (this.lock) {
-            // TODO: Double-check to avoid always locking
-            Listener<T>[] arr = this.listeners;
-            if (Arrays.asList(arr).contains(listener)) {
-                return;
-            }
-
-            int index = Arrays.binarySearch(arr, listener);
-            if (index < 0) {
-                index = -index - 1;
-            }
-
-            int len = arr.length;
-            Listener<T>[] newArr = newListenerArray(len + 1);
-            System.arraycopy(arr, 0, newArr, 0, index);
-            System.arraycopy(arr, index, newArr, index + 1, len - index);
-            newArr[index] = listener;
-            this.listeners = newArr;
-        }
+    @Override
+    public boolean remove(Listener<T> listener) {
+        return this.backing.remove(listener);
     }
 
-    public void remove(Listener<?> listener) {
-        synchronized (this.lock) {
-            // TODO: Double-check to avoid always locking
-            Listener<T>[] arr = this.listeners;
-            int index = Arrays.asList(arr).indexOf(listener);
-            if (index < 0) {
-                return;
-            }
-
-            int len = arr.length;
-            Listener<T>[] newArr = newListenerArray(len - 1);
-            System.arraycopy(arr, 0, newArr, 0, index);
-            System.arraycopy(arr, index + 1, newArr, index, len - index - 1);
-            this.listeners = newArr;
-        }
+    protected void post0(T event, EventDispatcher dispatcher) {
+        this.backing.post(event, dispatcher);
     }
 
     public void addChild(ListenerGroup<? super T> child) {
         this.children.add(child);
-        this.dispatcher = this.createDispatcher();
+        this.distributor = this.createDistributor();
     }
 
-    private Consumer<T> createDispatcher() {
+    private BiConsumer<T, EventDispatcher> createDistributor() {
         switch (this.children.size()) {
             case 0: {
-                return this::dispatch;
+                return this::post0;
             }
             case 1: {
                 final ListenerGroup<? super T> g0 = this.children.get(0);
-                return event -> {
-                    this.dispatch(event);
-                    g0.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
+                    g0.post0(event, dispatcher);
                 };
             }
             case 2: {
                 final ListenerGroup<? super T> g0 = this.children.get(0), g1 = this.children.get(1);
-                return event -> {
-                    this.dispatch(event);
-                    g0.dispatch(event);
-                    g1.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
+                    g0.post0(event, dispatcher);
+                    g1.post0(event, dispatcher);
                 };
             }
             case 3: {
                 final ListenerGroup<? super T> g0 = this.children.get(0), g1 = this.children.get(1), g2 = this.children.get(2);
-                return event -> {
-                    this.dispatch(event);
-                    g0.dispatch(event);
-                    g1.dispatch(event);
-                    g2.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
+                    g0.post0(event, dispatcher);
+                    g1.post0(event, dispatcher);
+                    g2.post0(event, dispatcher);
                 };
             }
             case 4: {
                 final ListenerGroup<? super T> g0 = this.children.get(0), g1 = this.children.get(1), g2 = this.children.get(2), g3 = this.children.get(3);
-                return event -> {
-                    this.dispatch(event);
-                    g0.dispatch(event);
-                    g1.dispatch(event);
-                    g2.dispatch(event);
-                    g3.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
+                    g0.post0(event, dispatcher);
+                    g1.post0(event, dispatcher);
+                    g2.post0(event, dispatcher);
+                    g3.post0(event, dispatcher);
                 };
             }
             case 5: {
                 final ListenerGroup<? super T> g0 = this.children.get(0), g1 = this.children.get(1), g2 = this.children.get(2), g3 = this.children.get(3), g4 = this.children.get(4);
-                return event -> {
-                    this.dispatch(event);
-                    g0.dispatch(event);
-                    g1.dispatch(event);
-                    g2.dispatch(event);
-                    g3.dispatch(event);
-                    g4.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
+                    g0.post0(event, dispatcher);
+                    g1.post0(event, dispatcher);
+                    g2.post0(event, dispatcher);
+                    g3.post0(event, dispatcher);
+                    g4.post0(event, dispatcher);
                 };
             }
             default: {
-                return event -> {
-                    this.dispatch(event);
+                return (event, dispatcher) -> {
+                    this.post0(event, dispatcher);
                     for (ListenerGroup<? super T> child : this.children) {
-                        child.dispatch(event);
+                        child.post0(event, dispatcher);
                     }
                 };
             }
         }
-    }
-
-    private static final Listener<?>[] EMPTY_LISTENERS = new Listener<?>[0];
-
-    @SuppressWarnings("unchecked")
-    private static <T> Listener<T>[] newListenerArray(int size) {
-        return (Listener<T>[]) (size == 0 ? EMPTY_LISTENERS : new Listener[size]);
     }
 }
