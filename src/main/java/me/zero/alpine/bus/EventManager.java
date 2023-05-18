@@ -3,17 +3,14 @@ package me.zero.alpine.bus;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.*;
-import net.jodah.typetools.TypeResolver;
+import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Default implementation of {@link EventBus}.
@@ -47,6 +44,8 @@ public class EventManager implements EventBus {
      */
     protected final boolean recursiveDiscovery;
 
+    protected final List<ListenerDiscoveryStrategy> discoveryStrategies;
+
     protected final EventDispatcher eventDispatcher;
 
     protected final ListenerListFactory listenerListFactory;
@@ -59,6 +58,12 @@ public class EventManager implements EventBus {
         this.subscriberListenerCache = new ConcurrentHashMap<>();
         this.activeListeners = new Event2ListenersMap();
         this.activeListenersWriteLock = new Object();
+
+        // TODO: Specify through builder
+        this.discoveryStrategies = Collections.unmodifiableList(Arrays.asList(
+            ListenerDiscoveryStrategy.subscribeFields(),
+            ListenerDiscoveryStrategy.subscribeMethods()
+        ));
 
         // Copy settings from builder
         this.name = builder.name;
@@ -141,16 +146,40 @@ public class EventManager implements EventBus {
     }
 
     protected List<Listener<?>> getListeners(Subscriber subscriber) {
-        Class<?> cls = subscriber.getClass();
-        Stream<Field> fields = Stream.empty();
-        do {
-            fields = Stream.concat(fields, getListenerFields(cls));
-            cls = cls.getSuperclass();
-        } while (this.recursiveDiscovery && cls != null);
+        // TODO: Per-class candidate caching
 
         return Collections.unmodifiableList(
-            fields.map(field -> asListener(subscriber, field)).collect(Collectors.toList())
+            // Get all super-classes of 'subscriber' that inherit Subscriber
+            this.getSubscriberHierarchy(subscriber.getClass())
+                // Apply each discovery strategy to each class, and use flatMap to create a stream of candidates
+                .flatMap(cls -> this.discoveryStrategies.stream().flatMap(strategy -> strategy.findAll(cls)))
+                // Bind the subscriber instance to each candidate to get a Listener instance
+                .map(candidate -> candidate.bind(subscriber))
+                .collect(Collectors.toList())
         );
+    }
+
+    protected Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
+        if (!this.recursiveDiscovery) {
+            return Stream.of(cls);
+        }
+
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<Class<? extends Subscriber>>(
+            Long.MAX_VALUE, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL
+        ) {
+            private Class<?> curr = cls;
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean tryAdvance(Consumer<? super Class<? extends Subscriber>> action) {
+                if (Subscriber.class.isAssignableFrom(this.curr)) {
+                    action.accept((Class<? extends Subscriber>) this.curr);
+                    this.curr = this.curr.getSuperclass();
+                    return true;
+                }
+                return false;
+            }
+        }, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -180,38 +209,6 @@ public class EventManager implements EventBus {
             } else {
                 return group;
             }
-        }
-    }
-
-    protected static Stream<Field> getListenerFields(Class<?> cls) {
-        return Arrays.stream(cls.getDeclaredFields()).filter(EventManager::isListenerField);
-    }
-
-    protected static boolean isListenerField(Field field) {
-        return field.isAnnotationPresent(Subscribe.class)
-            && field.getType().equals(Listener.class)
-            && !Modifier.isStatic(field.getModifiers());
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <T> Listener<T> asListener(Subscriber subscriber, Field field) {
-        try {
-            if (!(field.getGenericType() instanceof ParameterizedType)) {
-                throw new IllegalArgumentException("Listener fields must have a specified type parameter!");
-            }
-
-            boolean accessible = field.isAccessible();
-            field.setAccessible(true);
-            Listener<T> listener = (Listener<T>) field.get(subscriber);
-            field.setAccessible(accessible);
-
-            // Resolve the actual target type from the field type parameter, and update the Listener target
-            Class<T> target = (Class<T>) TypeResolver.resolveRawArgument(field.getGenericType(), Listener.class);
-            listener.setTarget(target);
-
-            return listener;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access Listener field");
         }
     }
 
