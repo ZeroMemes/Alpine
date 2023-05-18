@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * @author Brady
  * @since 3.0.0
  */
-public enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
+enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
     INSTANCE;
 
     @Override
