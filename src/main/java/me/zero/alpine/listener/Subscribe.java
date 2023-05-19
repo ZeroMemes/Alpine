@@ -14,26 +14,26 @@ import java.lang.annotation.Target;
  * When an {@link EventBus} is using the built-in {@code subscribeFields()} discovery strategy, fields annotated with
  * {@link Subscribe} must be of the type {@link Listener} and have an explicit type parameter.
  *
- * <pre> {@code
+ * <pre>
  * public class EventHandler implements Subscriber {
- *   @Subscribe
- *   public Listener<Event> eventListener = new Listener<>(event -> {
+ *   &#64;Subscribe
+ *   public Listener&lt;Event&gt; eventListener = new Listener&lt;&gt;(event -&gt; {
  *     // process 'event'
  *   });
  * }
- * }</pre>
+ * </pre>
  *
  * When an {@link EventBus} is using the built-in {@code subscribeMethods()} discovery strategy, methods annotated with
  * {@link Subscribe} must return {@code void} and have a single parameter which is the target event type.
  *
- * <pre> {@code
+ * <pre>
  * public class EventHandler implements Subscriber {
- *   @Subscribe
+ *   &#64;Subscribe
  *   public onEvent(Event event) {
  *     // process 'event'
  *   }
  * }
- * }</pre>
+ * </pre>
  *
  * @see ListenerDiscoveryStrategy#subscribeFields()
  * @see ListenerDiscoveryStrategy#subscribeMethods()
