@@ -14,7 +14,7 @@ import java.util.function.Predicate;
  *
  * @param <T> Target event type
  * @author Brady
- * @since 1/21/2017
+ * @since 1.2
  */
 public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
 

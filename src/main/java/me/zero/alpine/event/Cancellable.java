@@ -9,7 +9,7 @@ import me.zero.alpine.listener.Listener;
  *
  * @author Brady
  * @see CancellableEvent
- * @since 9/15/2018
+ * @since 1.8
  */
 public interface Cancellable {
 

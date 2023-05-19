@@ -4,7 +4,7 @@ import me.zero.alpine.bus.EventBusBuilder;
 
 /**
  * @author Brady
- * @since 5/15/2023
+ * @since 3.0.0
  */
 @FunctionalInterface
 public interface ListenerExceptionHandler {
