@@ -6,7 +6,7 @@ gen
 
 # Gradle project files
 .gradle
-/build/
+build
 gradle-app.setting
 
 # Cache of project
