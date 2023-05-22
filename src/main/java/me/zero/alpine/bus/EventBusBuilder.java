@@ -3,6 +3,8 @@ package me.zero.alpine.bus;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerExceptionHandler;
 import me.zero.alpine.listener.Subscriber;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -28,7 +30,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @see EventBus#name()
      * @since 2.0.0
      */
-    public EventBusBuilder<T> setName(String name) {
+    public @NotNull EventBusBuilder<T> setName(@NotNull String name) {
         this.name = name;
         return this;
     }
@@ -40,7 +42,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @return This builder
      * @since 2.0.0
      */
-    public EventBusBuilder<T> setRecursiveDiscovery() {
+    public @NotNull EventBusBuilder<T> setRecursiveDiscovery() {
         this.recursiveDiscovery = true;
         return this;
     }
@@ -52,7 +54,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @return This builder
      * @since 2.0.0
      */
-    public EventBusBuilder<T> setSuperListeners() {
+    public @NotNull EventBusBuilder<T> setSuperListeners() {
         this.superListeners = true;
         return this;
     }
@@ -68,7 +70,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @return This builder
      * @since 3.0.0
      */
-    public EventBusBuilder<T> setExceptionHandler(ListenerExceptionHandler exceptionHandler) {
+    public @NotNull EventBusBuilder<T> setExceptionHandler(@Nullable ListenerExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
         return this;
     }
@@ -79,7 +81,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @return This builder
      * @since 3.0.0
      */
-    public EventBusBuilder<T> noExceptionHandler() {
+    public @NotNull EventBusBuilder<T> noExceptionHandler() {
         return this.setExceptionHandler(null);
     }
 
@@ -90,7 +92,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
-    public EventBusBuilder<AttachableEventBus> setAttachable() {
+    public @NotNull EventBusBuilder<AttachableEventBus> setAttachable() {
         this.attachable = true;
         // Illegal? Maybe.
         return (EventBusBuilder<AttachableEventBus>) this;
@@ -101,7 +103,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
-    public T build() {
+    public @NotNull T build() {
         Objects.requireNonNull(this.name);
         return this.attachable
             ? (T) new AttachableEventManager(this)

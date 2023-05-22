@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.*;
 import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,11 +51,11 @@ public class EventManager implements EventBus {
 
     protected final ListenerListFactory listenerListFactory;
 
-    public EventManager(String name) {
+    public EventManager(@NotNull String name) {
         this(new EventBusBuilder<>().setName(name));
     }
 
-    public EventManager(EventBusBuilder<?> builder) {
+    public EventManager(@NotNull EventBusBuilder<?> builder) {
         this.subscriberListenerCache = new ConcurrentHashMap<>();
         this.activeListeners = new Event2ListenersMap();
         this.activeListenersWriteLock = new Object();
@@ -103,22 +104,22 @@ public class EventManager implements EventBus {
     }
 
     @Override
-    public String name() {
+    public @NotNull String name() {
         return this.name;
     }
 
     @Override
-    public void subscribe(Subscriber subscriber) {
+    public void subscribe(@NotNull Subscriber subscriber) {
         this.subscriberListenerCache.computeIfAbsent(subscriber, this::getListeners).forEach(this::subscribe);
     }
 
     @Override
-    public <T> void subscribe(Listener<T> listener) {
+    public <T> void subscribe(@NotNull Listener<T> listener) {
         this.getOrCreateListenerList(listener.getTarget()).add(listener);
     }
 
     @Override
-    public void unsubscribe(Subscriber subscriber) {
+    public void unsubscribe(@NotNull Subscriber subscriber) {
         List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
         if (subscriberListeners != null) {
             subscriberListeners.forEach(this::unsubscribe);
@@ -127,7 +128,7 @@ public class EventManager implements EventBus {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void unsubscribe(Listener<T> listener) {
+    public <T> void unsubscribe(@NotNull Listener<T> listener) {
         ListenerList<T> list = (ListenerList<T>) this.activeListeners.get(listener.getTarget());
         if (list != null) {
             list.remove(listener);
@@ -136,7 +137,7 @@ public class EventManager implements EventBus {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void post(T event) {
+    public <T> void post(@NotNull T event) {
         this.getOrCreateListenerList((Class<T>) event.getClass()).post(event, this.eventDispatcher);
     }
 
@@ -212,7 +213,7 @@ public class EventManager implements EventBus {
         }
     }
 
-    public static EventBusBuilder<EventBus> builder() {
+    public static @NotNull EventBusBuilder<EventBus> builder() {
         return new EventBusBuilder<>();
     }
 

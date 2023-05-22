@@ -1,5 +1,7 @@
 package me.zero.alpine.bus;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -15,16 +17,16 @@ public class AttachableEventManager extends EventManager implements AttachableEv
      */
     protected final CopyOnWriteArrayList<EventBus> attached = new CopyOnWriteArrayList<>();
 
-    public AttachableEventManager(String name) {
+    public AttachableEventManager(@NotNull String name) {
         super(name);
     }
 
-    AttachableEventManager(EventBusBuilder<?> builder) {
+    AttachableEventManager(@NotNull EventBusBuilder<?> builder) {
         super(builder);
     }
 
     @Override
-    public <T> void post(T event) {
+    public <T> void post(@NotNull T event) {
         super.post(event);
         for (EventBus bus : this.attached) {
             bus.post(event);
@@ -32,12 +34,12 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     }
 
     @Override
-    public void attach(EventBus bus) {
+    public void attach(@NotNull EventBus bus) {
         this.attached.addIfAbsent(bus);
     }
 
     @Override
-    public void detach(EventBus bus) {
+    public void detach(@NotNull EventBus bus) {
         this.attached.remove(bus);
     }
 }

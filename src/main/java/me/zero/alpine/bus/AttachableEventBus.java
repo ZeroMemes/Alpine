@@ -1,5 +1,7 @@
 package me.zero.alpine.bus;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A type of {@link EventBus} that can have child event buses "attached" to it, allowing them to receive the same events
  * that get posted to the parent. In applications with a central {@link EventBus}, this allows users making extensions
@@ -17,7 +19,7 @@ public interface AttachableEventBus extends EventBus {
      * @param bus The bus
      * @since 1.8
      */
-    void attach(EventBus bus);
+    void attach(@NotNull EventBus bus);
 
     /**
      * Detaches the specified {@link EventBus} from this bus. Has no effect if {@link #attach(EventBus)} has not
@@ -26,5 +28,5 @@ public interface AttachableEventBus extends EventBus {
      * @param bus The bus
      * @since 1.8
      */
-    void detach(EventBus bus);
+    void detach(@NotNull EventBus bus);
 }

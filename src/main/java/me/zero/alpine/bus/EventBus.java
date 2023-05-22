@@ -3,6 +3,7 @@ package me.zero.alpine.bus;
 import me.zero.alpine.event.Cancellable;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscriber;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The core of an event-driven application.
@@ -18,7 +19,7 @@ public interface EventBus {
      * @return The name of this event bus
      * @since 2.0.0
      */
-    String name();
+    @NotNull String name();
 
     /**
      * Discovers all the valid Listener instances defined by the specified {@link Subscriber} and adds them to the bus.
@@ -26,7 +27,7 @@ public interface EventBus {
      * @param subscriber The subscriber to be added
      * @since 1.2
      */
-    void subscribe(Subscriber subscriber);
+    void subscribe(@NotNull Subscriber subscriber);
 
     /**
      * Subscribes an individual listener object.
@@ -35,14 +36,14 @@ public interface EventBus {
      * @param <T> The target event type
      * @since 1.8
      */
-    <T> void subscribe(Listener<T> listener);
+    <T> void subscribe(@NotNull Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
      * @see #subscribe(Subscriber)
      * @since 1.7
      */
-    default void subscribeAll(Subscriber... subscribers) {
+    default void subscribeAll(@NotNull Subscriber... subscribers) {
         for (Subscriber subscriber : subscribers) {
             this.subscribe(subscriber);
         }
@@ -53,7 +54,7 @@ public interface EventBus {
      * @see #subscribe(Subscriber)
      * @since 1.7
      */
-    default void subscribeAll(Iterable<Subscriber> subscribers) {
+    default void subscribeAll(@NotNull Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::subscribe);
     }
 
@@ -62,7 +63,7 @@ public interface EventBus {
      * @see #subscribe(Listener)
      * @since 1.9
      */
-    default void subscribeAll(Listener<?>... listeners) {
+    default void subscribeAll(@NotNull Listener<?>... listeners) {
         for (Listener<?> listener : listeners) {
             this.subscribe(listener);
         }
@@ -74,7 +75,7 @@ public interface EventBus {
      * @param subscriber The subscriber to be unsubscribed from the event bus
      * @since 1.2
      */
-    void unsubscribe(Subscriber subscriber);
+    void unsubscribe(@NotNull Subscriber subscriber);
 
     /**
      * Unsubscribe an individual listener object.
@@ -83,14 +84,14 @@ public interface EventBus {
      * @param <T> The target event type
      * @since 1.8
      */
-    <T> void unsubscribe(Listener<T> listener);
+    <T> void unsubscribe(@NotNull Listener<T> listener);
 
     /**
      * @param subscribers An array of subscribers
      * @see #unsubscribe(Subscriber)
      * @since 1.7
      */
-    default void unsubscribeAll(Subscriber... subscribers) {
+    default void unsubscribeAll(@NotNull Subscriber... subscribers) {
         for (Subscriber subscriber : subscribers) {
             this.unsubscribe(subscriber);
         }
@@ -101,7 +102,7 @@ public interface EventBus {
      * @see #unsubscribe(Subscriber)
      * @since 1.7
      */
-    default void unsubscribeAll(Iterable<Subscriber> subscribers) {
+    default void unsubscribeAll(@NotNull Iterable<Subscriber> subscribers) {
         subscribers.forEach(this::unsubscribe);
     }
 
@@ -110,7 +111,7 @@ public interface EventBus {
      * @see #unsubscribe(Listener)
      * @since 1.9
      */
-    default void unsubscribeAll(Listener<?>... listeners) {
+    default void unsubscribeAll(@NotNull Listener<?>... listeners) {
         for (Listener<?> listener : listeners) {
             this.unsubscribe(listener);
         }
@@ -124,7 +125,7 @@ public interface EventBus {
      * @param <T> The event type
      * @since 1.2
      */
-    <T> void post(T event);
+    <T> void post(@NotNull T event);
 
     /**
      * Posts a cancellable event and returns whether the event has been cancelled.
@@ -133,7 +134,7 @@ public interface EventBus {
      * @return Whether the event has been cancelled
      * @since 2.0.0
      */
-    default boolean post(Cancellable event) {
+    default boolean post(@NotNull Cancellable event) {
         this.post((Object) event);
         return event.isCancelled();
     }

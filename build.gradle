@@ -31,6 +31,7 @@ tasks.withType(AbstractArchiveTask).configureEach {
 dependencies {
     implementation 'net.jodah:typetools:0.6.3'
     api 'it.unimi.dsi:fastutil:8.5.12'
+    implementation 'org.jetbrains:annotations:24.0.1'
 }
 
 publishing {

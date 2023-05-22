@@ -4,6 +4,8 @@ import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.EventPriority;
 import me.zero.alpine.util.Util;
 import net.jodah.typetools.TypeResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -16,7 +18,11 @@ import java.util.function.Predicate;
  * @author Brady
  * @since 1.2
  */
-public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
+/*
+ Even though IntelliJ warns about placing @NotNull on a type parameter here, it is actually sufficient for Kotlin to
+ deduce a non-null type for all usages of T.
+ */
+public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Listener<?>> {
 
     private static final Predicate<?>[] EMPTY_FILTERS = new Predicate[0];
 
@@ -37,34 +43,34 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
      */
     private final int priority;
 
-    public Listener(Consumer<T> callback) {
+    public Listener(@NotNull Consumer<T> callback) {
         this(null, callback, emptyFilters());
     }
 
-    public Listener(Consumer<T> callback, int priority) {
+    public Listener(@NotNull Consumer<T> callback, int priority) {
         this(null, callback, priority, emptyFilters());
     }
 
-    public Listener(Class<T> target, Consumer<T> callback) {
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback) {
         this(target, callback, emptyFilters());
     }
 
-    public Listener(Class<T> target, Consumer<T> callback, int priority) {
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority) {
         this(target, callback, priority, emptyFilters());
     }
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, Predicate<? super T>... filters) {
+    public Listener(@NotNull Consumer<T> callback, @NotNull Predicate<? super T>... filters) {
         this(null, callback, filters);
     }
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, int priority, Predicate<? super T>... filters) {
+    public Listener(@NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
         this(null, callback, priority, filters);
     }
 
     @SafeVarargs
-    public Listener(Class<T> target, Consumer<T> callback, Predicate<? super T>... filters) {
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, @NotNull Predicate<? super T>... filters) {
         this(target, callback, EventPriority.DEFAULT, filters);
     }
 
@@ -78,7 +84,7 @@ public final class Listener<T> implements Consumer<T>, Comparable<Listener<?>> {
      */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
         this.callback = Util.predicated(callback, filters);
         this.priority = priority;
         this.target = target == null
