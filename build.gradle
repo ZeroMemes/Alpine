@@ -6,10 +6,19 @@ plugins {
 group 'com.github.ZeroMemes'
 version '3.0.0-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+allprojects {
+    repositories {
+        mavenCentral()
     }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    }
+}
+
+java {
     withJavadocJar()
     withSourcesJar()
 }
@@ -17,10 +26,6 @@ java {
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
