@@ -139,7 +139,7 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
      *
      * @return The target event type
      */
-    public Class<T> getTarget() {
+    public @NotNull Class<T> getTarget() {
         return this.target;
     }
 
