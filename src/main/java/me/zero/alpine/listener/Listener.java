@@ -7,6 +7,7 @@ import net.jodah.typetools.TypeResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -127,7 +128,7 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
      * @param target The new target
      * @throws IllegalArgumentException if the existing target isn't assignable from the new target
      */
-    public void setTarget(Class<T> target) {
+    public void setTarget(@NotNull Class<T> target) {
         if (!this.target.isAssignableFrom(target)) {
             throw new IllegalArgumentException("Current target type must be assignable from new target type");
         }
@@ -165,9 +166,9 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
     }
 
     @Override
-    public int compareTo(Listener<?> o) {
+    public int compareTo(@NotNull Listener<?> o) {
         // Listeners with higher priorities should come first, so negate the compare result
-        return -Integer.compare(this.getPriority(), o.getPriority());
+        return -Integer.compare(this.getPriority(), Objects.requireNonNull(o).getPriority());
     }
 
     @SuppressWarnings("unchecked")
