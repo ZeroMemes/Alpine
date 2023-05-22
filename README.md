@@ -129,4 +129,4 @@ public class MyApplication {
     }
 }
 ```
-The complete example class can be found [here](src/test/java/MyApplication.java).
+The complete example class can be found in [Java](example/src/main/java/JavaApplication.java) and [Kotlin](example/src/main/kotlin/KotlinApplication.kt).
