@@ -13,4 +13,16 @@ public interface ListenerList<T> {
     boolean add(Listener<T> listener);
 
     boolean remove(Listener<T> listener);
+
+    static <T> ListenerList<T> synchronize(ListenerList<T> list) {
+        return new SynchronizedListenerList<>(list);
+    }
+
+    static <T> ListenerList<T> synchronize(ListenerList<T> list, Object sync) {
+        return new SynchronizedListenerList<>(list, sync);
+    }
+
+    static <T> ListenerList<T> readWriteLock(ListenerList<T> list) {
+        return new ReadWriteLockListenerList<>(list);
+    }
 }
