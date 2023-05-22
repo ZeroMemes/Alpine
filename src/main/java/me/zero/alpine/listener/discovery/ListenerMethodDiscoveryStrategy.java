@@ -63,10 +63,7 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
                 final Consumer<T> callback = (Consumer<T>) factory.call().invoke(instance);
 
                 // TODO: Caching?, Filters, Priority, etc.
-                // Create a new listener from the callback and explicitly set the target
-                final Listener<T> listener = new Listener<>(callback);
-                listener.setTarget(target);
-                return listener;
+                return new Listener<>(target, callback);
             } catch (Throwable e) {
                 throw new IllegalStateException("Unable to bind Listener method", e);
             }
