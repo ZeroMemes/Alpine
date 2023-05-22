@@ -11,8 +11,35 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * A wrapper body that is used to define new event listeners. When using a method reference for the callback function,
- * specifying the target event class explicitly may be required.
+ * A Listener is an event callback wrapper that links event callbacks to their respective target types.
+ * <p>
+ *
+ * When using a method reference for the callback function, explicitly specifying the target event class may be
+ * required. Consider the following example:
+ * <pre>
+ * public class EventHandler implements Subscriber {
+ *   public EventHandler() {
+ *     // Incorrect Usage
+ *     App.EVENT_BUS.subscribe(new Listener&lt;String&gt;(this::doSomething));
+ *   }
+ *
+ *   public void doSomething(Object object) { ... }
+ * }
+ * </pre>
+ *
+ * Despite the explicit type parameter, the Listener target will be resolved as Object. (This is not an issue when the
+ * Listener is a field, as the type parameter can be extracted from the generic signature). The solution to this is to
+ * explicitly specify the target via a constructor parameter:
+ * <pre>
+ * public class EventHandler implements Subscriber {
+ *   public EventHandler() {
+ *     // Correct Usage
+ *     App.EVENT_BUS.subscribe(new Listener&lt;&gt;(String.class, this::doSomething));
+ *   }
+ *
+ *   public void doSomething(Object object) { ... }
+ * }
+ * </pre>
  *
  * @param <T> Target event type
  * @author Brady
