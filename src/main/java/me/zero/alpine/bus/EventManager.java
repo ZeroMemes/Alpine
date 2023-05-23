@@ -56,15 +56,11 @@ public class EventManager implements EventBus {
     }
 
     public EventManager(@NotNull EventBusBuilder<?> builder) {
+        Objects.requireNonNull(builder);
+
         this.subscriberListenerCache = new ConcurrentHashMap<>();
         this.activeListeners = new Event2ListenersMap();
         this.activeListenersWriteLock = new Object();
-
-        // TODO: Specify through builder
-        this.discoveryStrategies = Collections.unmodifiableList(Arrays.asList(
-            ListenerDiscoveryStrategy.subscribeFields(),
-            ListenerDiscoveryStrategy.subscribeMethods()
-        ));
 
         // Copy settings from builder
         this.name = builder.getName();
@@ -72,6 +68,7 @@ public class EventManager implements EventBus {
         this.eventDispatcher = builder.getExceptionHandler()
             .map(EventDispatcher::withExceptionHandler)
             .orElseGet(EventDispatcher::fastEventDispatcher);
+        this.discoveryStrategies = new ArrayList<>(builder.getDiscoveryStrategies());
 
         final ListenerListFactory factory = builder.getListenerListFactory();
 

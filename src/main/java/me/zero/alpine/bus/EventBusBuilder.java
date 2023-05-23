@@ -1,11 +1,12 @@
 package me.zero.alpine.bus;
 
 import me.zero.alpine.listener.*;
+import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Brady
@@ -19,9 +20,13 @@ public final class EventBusBuilder<T extends EventBus> {
     private boolean superListeners = false;
     private ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
     private ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
+    private final List<ListenerDiscoveryStrategy> discoveryStrategies = new ArrayList<>();
     private boolean attachable = false;
 
-    EventBusBuilder() {}
+    EventBusBuilder() {
+        this.discoveryStrategies.add(ListenerDiscoveryStrategy.subscribeFields());
+        this.discoveryStrategies.add(ListenerDiscoveryStrategy.subscribeMethods());
+    }
 
     /**
      * Sets the name of the {@link EventBus}.
@@ -100,6 +105,32 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
+     * Replaces the current list of discovery strategies with the specified strategies.
+     *
+     * @param strategies The new strategies
+     * @return This builder
+     * @see EventBusBuilder#addDiscoveryStrategies
+     * @since 3.0.0
+     */
+    public @NotNull EventBusBuilder<T> setDiscoveryStrategies(@NotNull ListenerDiscoveryStrategy... strategies) {
+        this.discoveryStrategies.clear();
+        return this.addDiscoveryStrategies(strategies);
+    }
+
+    /**
+     * Adds the specified strategies to the list of discovery strategies. The strategies that are included by default
+     * are {@link ListenerDiscoveryStrategy#subscribeFields()} and {@link ListenerDiscoveryStrategy#subscribeMethods()}.
+     *
+     * @param strategies The strategies
+     * @return This builder
+     * @since 3.0.0
+     */
+    public @NotNull EventBusBuilder<T> addDiscoveryStrategies(@NotNull ListenerDiscoveryStrategy... strategies) {
+        Collections.addAll(this.discoveryStrategies, strategies);
+        return this;
+    }
+
+    /**
      * Causes this builder to create an {@link EventBus} which implements {@link AttachableEventBus}.
      *
      * @return This builder
@@ -162,5 +193,13 @@ public final class EventBusBuilder<T extends EventBus> {
      */
     public ListenerListFactory getListenerListFactory() {
         return this.listenerListFactory;
+    }
+
+    /**
+     * @return The discovery strategies
+     * @since 3.0.0
+     */
+    public @NotNull @UnmodifiableView List<ListenerDiscoveryStrategy> getDiscoveryStrategies() {
+        return Collections.unmodifiableList(this.discoveryStrategies);
     }
 }
