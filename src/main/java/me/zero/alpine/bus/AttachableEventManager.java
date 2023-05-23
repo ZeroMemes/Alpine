@@ -34,12 +34,12 @@ public class AttachableEventManager extends EventManager implements AttachableEv
     }
 
     @Override
-    public void attach(@NotNull EventBus bus) {
-        this.attached.addIfAbsent(bus);
+    public boolean attach(@NotNull EventBus bus) {
+        return this.attached.addIfAbsent(bus);
     }
 
     @Override
-    public void detach(@NotNull EventBus bus) {
-        this.attached.remove(bus);
+    public boolean detach(@NotNull EventBus bus) {
+        return this.attached.remove(bus);
     }
 }

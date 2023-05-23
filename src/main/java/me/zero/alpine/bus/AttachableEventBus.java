@@ -18,8 +18,9 @@ public interface AttachableEventBus extends EventBus {
      *
      * @param bus The bus
      * @since 1.8
+     * @return {@code true} if the bus was attached
      */
-    void attach(@NotNull EventBus bus);
+    boolean attach(@NotNull EventBus bus);
 
     /**
      * Detaches the specified {@link EventBus} from this bus. Has no effect if {@link #attach(EventBus)} has not
@@ -27,6 +28,7 @@ public interface AttachableEventBus extends EventBus {
      *
      * @param bus The bus
      * @since 1.8
+     * @return {@code true} if the bus was detached
      */
-    void detach(@NotNull EventBus bus);
+    boolean detach(@NotNull EventBus bus);
 }
