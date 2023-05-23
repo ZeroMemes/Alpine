@@ -48,7 +48,7 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
         // Resolve the actual target type from the field type parameter
         final Class<T> target = (Class<T>) TypeResolver.resolveRawArgument(field.getGenericType(), Listener.class);
         if (target == TypeResolver.Unknown.class) {
-            throw new ListenerGenericTypeException("Unable to resolve Listener type parameter. Is it generic?");
+            throw new ListenerGenericTypeException("Unable to resolve Listener type parameter. Is it a type variable?");
         }
 
         return instance -> {
