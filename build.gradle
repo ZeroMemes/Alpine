@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 group 'com.github.ZeroMemes'
@@ -22,6 +23,14 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
+
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+check.dependsOn jacocoTestReport
 
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
