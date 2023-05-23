@@ -62,7 +62,7 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
                 listener.setTarget(target);
                 return listener;
             } catch (Throwable e) {
-                throw new ListenerBindException("Unable to read Listener field", e);
+                throw new ListenerBindException("Unable to bind Listener field", e);
             }
         };
     }
