@@ -67,16 +67,16 @@ public class EventManager implements EventBus {
         ));
 
         // Copy settings from builder
-        this.name = builder.name;
-        this.recursiveDiscovery = builder.recursiveDiscovery;
-        this.eventDispatcher = builder.exceptionHandler == null
-            ? EventDispatcher.fastEventDispatcher()
-            : EventDispatcher.withExceptionHandler(builder.exceptionHandler);
+        this.name = builder.getName();
+        this.recursiveDiscovery = builder.isRecursiveDiscovery();
+        this.eventDispatcher = builder.getExceptionHandler()
+            .map(EventDispatcher::withExceptionHandler)
+            .orElseGet(EventDispatcher::fastEventDispatcher);
 
-        final ListenerListFactory factory = builder.listenerListFactory;
+        final ListenerListFactory factory = builder.getListenerListFactory();
 
         // Wrap the factory in ListenerGroup if superListeners is enabled
-        if (builder.superListeners) {
+        if (builder.isSuperListeners()) {
             this.listenerListFactory = new ListenerListFactory() {
                 @SuppressWarnings("unchecked")
                 @Override

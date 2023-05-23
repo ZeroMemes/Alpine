@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Brady
@@ -12,11 +13,12 @@ import java.util.Objects;
  */
 public final class EventBusBuilder<T extends EventBus> {
 
-    String name = null;
-    boolean recursiveDiscovery = false;
-    boolean superListeners = false;
-    ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
-    ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
+    // Default Settings
+    private String name = null;
+    private boolean recursiveDiscovery = false;
+    private boolean superListeners = false;
+    private ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
+    private ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
     private boolean attachable = false;
 
     EventBusBuilder() {}
@@ -111,7 +113,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return The constructed {@link EventBus}
+     * @return A newly constructed {@link EventBus} instance using this {@link EventBusBuilder}.
      * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
@@ -120,5 +122,45 @@ public final class EventBusBuilder<T extends EventBus> {
         return this.attachable
             ? (T) new AttachableEventManager(this)
             : (T) new EventManager(this);
+    }
+
+    /**
+     * @return The name
+     * @since 3.0.0
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * @return {@code true} if recursive discovery is enabled
+     * @since 3.0.0
+     */
+    public boolean isRecursiveDiscovery() {
+        return this.recursiveDiscovery;
+    }
+
+    /**
+     * @return {@code true} if super listeners are enabled
+     * @since 3.0.0
+     */
+    public boolean isSuperListeners() {
+        return this.superListeners;
+    }
+
+    /**
+     * @return An optional containing the exception handler, or {@link Optional#empty()} if none
+     * @since 3.0.0
+     */
+    public Optional<ListenerExceptionHandler> getExceptionHandler() {
+        return Optional.ofNullable(this.exceptionHandler);
+    }
+
+    /**
+     * @return The listener list factory
+     * @since 3.0.0
+     */
+    public ListenerListFactory getListenerListFactory() {
+        return this.listenerListFactory;
     }
 }
