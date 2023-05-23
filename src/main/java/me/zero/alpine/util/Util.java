@@ -16,25 +16,20 @@ public final class Util {
 
     private Util() {}
 
-    private static final Unsafe UNSAFE;
     private static final MethodHandles.Lookup LOOKUP;
 
     static {
         try {
-            Field unsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafe.setAccessible(true);
-            UNSAFE = (Unsafe) unsafe.get(null);
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe unsafe = (Unsafe) theUnsafe.get(null);
 
             // Java 16 compatible method of getting IMPL_LOOKUP
             Field impl = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-            LOOKUP = (MethodHandles.Lookup) UNSAFE.getObject(UNSAFE.staticFieldBase(impl), UNSAFE.staticFieldOffset(impl));
+            LOOKUP = (MethodHandles.Lookup) unsafe.getObject(unsafe.staticFieldBase(impl), unsafe.staticFieldOffset(impl));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public static Unsafe getUnsafe() {
-        return UNSAFE;
     }
 
     /**
