@@ -45,8 +45,8 @@ public interface ListenerList<T> {
      * {@code this}, i.e. the wrapper object itself.
      *
      * @param list A listener list
+     * @param <T>  The event type
      * @return A synchronized wrapper of {@code list}
-     * @param <T> The event type
      * @since 3.0.0
      */
     static <T> ListenerList<T> synchronize(@NotNull ListenerList<T> list) {
@@ -59,8 +59,8 @@ public interface ListenerList<T> {
      *
      * @param list A listener list
      * @param sync The object to synchronize on
+     * @param <T>  The event type
      * @return A synchronized wrapper of {@code list}
-     * @param <T> The event type
      * @since 3.0.0
      */
     static <T> ListenerList<T> synchronize(@NotNull ListenerList<T> list, @NotNull Object sync) {
@@ -75,8 +75,8 @@ public interface ListenerList<T> {
      * {@code true} if events of the same type aren't posted from multiple threads.
      *
      * @param list A listener list
+     * @param <T>  The event type
      * @return A synchronized wrapper of {@code list}
-     * @param <T> The event type
      * @since 3.0.0
      */
     static <T> ListenerList<T> readWriteLock(@NotNull ListenerList<T> list) {

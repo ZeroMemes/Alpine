@@ -17,8 +17,8 @@ public interface AttachableEventBus extends EventBus {
      * no effect if the given bus has already been attached to this bus.
      *
      * @param bus The bus
-     * @since 1.8
      * @return {@code true} if the bus was attached
+     * @since 1.8
      */
     boolean attach(@NotNull EventBus bus);
 
@@ -27,8 +27,8 @@ public interface AttachableEventBus extends EventBus {
      * already been called on the given bus.
      *
      * @param bus The bus
-     * @since 1.8
      * @return {@code true} if the bus was detached
+     * @since 1.8
      */
     boolean detach(@NotNull EventBus bus);
 }

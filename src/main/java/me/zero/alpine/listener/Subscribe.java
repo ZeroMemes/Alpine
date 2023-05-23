@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  *   });
  * }
  * </pre>
- *
+ * <p>
  * When an {@link EventBus} is using the built-in {@code subscribeMethods()} discovery strategy, methods annotated with
  * {@link Subscribe} must return {@code void} and have a single parameter which is the target event type.
  *
@@ -35,10 +35,9 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
+ * @author Brady
  * @see ListenerDiscoveryStrategy#subscribeFields()
  * @see ListenerDiscoveryStrategy#subscribeMethods()
- *
- * @author Brady
  * @since 1.2
  */
 @Retention(RetentionPolicy.RUNTIME)

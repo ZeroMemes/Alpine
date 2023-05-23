@@ -63,10 +63,9 @@ public final class EventBusBuilder<T extends EventBus> {
      * exception handler may be {@code null}, indicating that no explicit exception handling is to occur, and
      * exceptions should just propagate upwards.
      *
-     * @see ListenerExceptionHandler#DEFAULT
-     *
      * @param exceptionHandler The exception handler
      * @return This builder
+     * @see ListenerExceptionHandler#DEFAULT
      * @since 3.0.0
      */
     public @NotNull EventBusBuilder<T> setExceptionHandler(@Nullable ListenerExceptionHandler exceptionHandler) {
@@ -87,10 +86,9 @@ public final class EventBusBuilder<T extends EventBus> {
     /**
      * Sets the factory that will be used to create {@link ListenerList} objects for each event type.
      *
-     * @see ListenerListFactory#DEFAULT
-     *
      * @param factory The factory
      * @return This builder
+     * @see ListenerListFactory#DEFAULT
      * @since 3.0.0
      */
     public @NotNull EventBusBuilder<T> setListenerListFactory(@NotNull ListenerListFactory factory) {

@@ -14,7 +14,6 @@ import java.util.function.Predicate;
 /**
  * A Listener is an event callback wrapper that links event callbacks to their respective target types.
  * <p>
- *
  * When using a method reference for the callback function, explicitly specifying the target event class may be
  * required. Consider the following example:
  * <pre>
@@ -27,7 +26,6 @@ import java.util.function.Predicate;
  *   public void doSomething(Object object) { ... }
  * }
  * </pre>
- *
  * Despite the explicit type parameter, the Listener target will be resolved as Object. (This is not an issue when the
  * Listener is a field, as the type parameter can be extracted from the generic signature). The solution to this is to
  * explicitly specify the target via a constructor parameter:

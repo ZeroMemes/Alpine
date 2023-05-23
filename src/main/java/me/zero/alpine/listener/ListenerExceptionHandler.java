@@ -18,8 +18,8 @@ public interface ListenerExceptionHandler {
      * @param event    The event
      * @param listener The listener that threw an exception
      * @param cause    The exception that was thrown
+     * @param <T>      The event type
      * @return Whether to propagate the exception upwards
-     * @param <T> The event type
      */
     <T> boolean handleException(T event, Listener<T> listener, Throwable cause);
 
