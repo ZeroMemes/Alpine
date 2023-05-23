@@ -2,6 +2,7 @@ package me.zero.alpine.exception;
 
 /**
  * @author Brady
+ * @since 3.0.0
  */
 public class ListenerDiscoveryException extends RuntimeException {
 
