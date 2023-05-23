@@ -73,12 +73,15 @@ public class EventManager implements EventBus {
             ? EventDispatcher.noExceptionHandler()
             : EventDispatcher.withExceptionHandler(builder.exceptionHandler);
 
+        final ListenerListFactory factory = builder.listenerListFactory;
+
+        // Wrap the factory in ListenerGroup if superListeners is enabled
         if (builder.superListeners) {
             this.listenerListFactory = new ListenerListFactory() {
                 @SuppressWarnings("unchecked")
                 @Override
                 public <T> ListenerList<T> create(Class<T> cls) {
-                    ListenerGroup<T> group = new ListenerGroup<>(new CopyOnWriteListenerList<>());
+                    ListenerGroup<T> group = new ListenerGroup<>(factory.create(cls));
                     EventManager.this.activeListeners.forEach((activeTarget, activeGroup) -> {
                         // Link target to inherited types
                         if (activeTarget.isAssignableFrom(cls)) {
@@ -93,13 +96,7 @@ public class EventManager implements EventBus {
                 }
             };
         } else {
-            this.listenerListFactory = new ListenerListFactory() {
-
-                @Override
-                public <T> ListenerList<T> create(Class<T> cls) {
-                    return new CopyOnWriteListenerList<>();
-                }
-            };
+            this.listenerListFactory = factory;
         }
     }
 

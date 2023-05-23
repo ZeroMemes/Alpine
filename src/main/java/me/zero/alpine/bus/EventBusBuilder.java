@@ -1,8 +1,6 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.listener.Listener;
-import me.zero.alpine.listener.ListenerExceptionHandler;
-import me.zero.alpine.listener.Subscriber;
+import me.zero.alpine.listener.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +16,7 @@ public final class EventBusBuilder<T extends EventBus> {
     boolean recursiveDiscovery = false;
     boolean superListeners = false;
     ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
+    ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
     private boolean attachable = false;
 
     EventBusBuilder() {}
@@ -83,6 +82,21 @@ public final class EventBusBuilder<T extends EventBus> {
      */
     public @NotNull EventBusBuilder<T> noExceptionHandler() {
         return this.setExceptionHandler(null);
+    }
+
+    /**
+     * Sets the factory that will be used to create {@link ListenerList} objects for each event type.
+     *
+     * @see ListenerListFactory#DEFAULT
+     *
+     * @param factory The factory
+     * @return This builder
+     * @since 3.0.0
+     */
+    public @NotNull EventBusBuilder<T> setListenerListFactory(@NotNull ListenerListFactory factory) {
+        Objects.requireNonNull(factory);
+        this.listenerListFactory = factory;
+        return this;
     }
 
     /**
