@@ -3,6 +3,7 @@ package me.zero.alpine.listener.concurrent;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -21,12 +22,12 @@ public class CopyOnWriteListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public void post(T event, EventDispatcher dispatcher) {
+    public void post(@NotNull T event, @NotNull EventDispatcher dispatcher) {
         dispatcher.dispatch(event, this.listeners);
     }
 
     @Override
-    public final boolean add(Listener<T> listener) {
+    public final boolean add(@NotNull Listener<T> listener) {
         synchronized (this.lock) {
             // TODO: Double-check to avoid always locking
             Listener<T>[] arr = this.listeners;
@@ -50,7 +51,7 @@ public class CopyOnWriteListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public final boolean remove(Listener<T> listener) {
+    public final boolean remove(@NotNull Listener<T> listener) {
         synchronized (this.lock) {
             // TODO: Double-check to avoid always locking
             Listener<T>[] arr = this.listeners;

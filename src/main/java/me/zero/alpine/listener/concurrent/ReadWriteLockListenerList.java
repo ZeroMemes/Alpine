@@ -3,7 +3,9 @@ package me.zero.alpine.listener.concurrent;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerList;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -17,14 +19,14 @@ public class ReadWriteLockListenerList<T> implements ListenerList<T> {
     private final ReentrantReadWriteLock.WriteLock w;
 
     public ReadWriteLockListenerList(ListenerList<T> backing) {
-        this.backing = backing;
+        this.backing = Objects.requireNonNull(backing);
         ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
         this.r = lock.readLock();
         this.w = lock.writeLock();
     }
 
     @Override
-    public void post(T event, EventDispatcher dispatcher) {
+    public void post(@NotNull T event, @NotNull EventDispatcher dispatcher) {
         this.r.lock();
         try {
             this.backing.post(event, dispatcher);
@@ -34,7 +36,7 @@ public class ReadWriteLockListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public boolean add(Listener<T> listener) {
+    public boolean add(@NotNull Listener<T> listener) {
         this.w.lock();
         try {
             return this.backing.add(listener);
@@ -44,7 +46,7 @@ public class ReadWriteLockListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public boolean remove(Listener<T> listener) {
+    public boolean remove(@NotNull Listener<T> listener) {
         this.w.lock();
         try {
             return this.backing.remove(listener);

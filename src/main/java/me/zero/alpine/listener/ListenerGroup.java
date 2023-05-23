@@ -1,6 +1,7 @@
 package me.zero.alpine.listener;
 
 import me.zero.alpine.event.dispatch.EventDispatcher;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +24,17 @@ public class ListenerGroup<T> implements ListenerList<T> {
     }
 
     @Override
-    public void post(T event, EventDispatcher dispatcher) {
+    public void post(@NotNull T event, @NotNull EventDispatcher dispatcher) {
         this.distributor.accept(event, dispatcher);
     }
 
     @Override
-    public boolean add(Listener<T> listener) {
+    public boolean add(@NotNull Listener<T> listener) {
         return this.backing.add(listener);
     }
 
     @Override
-    public boolean remove(Listener<T> listener) {
+    public boolean remove(@NotNull Listener<T> listener) {
         return this.backing.remove(listener);
     }
 
