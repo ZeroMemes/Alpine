@@ -1,5 +1,5 @@
-import me.zero.alpine.bus.EventBus;
-import me.zero.alpine.bus.EventManager;
+package me.zero.alpine.bus;
+
 import me.zero.alpine.listener.Listener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
