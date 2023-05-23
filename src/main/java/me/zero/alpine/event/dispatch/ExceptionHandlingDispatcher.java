@@ -2,6 +2,7 @@ package me.zero.alpine.event.dispatch;
 
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerExceptionHandler;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Brady
@@ -16,7 +17,7 @@ final class ExceptionHandlingDispatcher implements EventDispatcher {
     }
 
     @Override
-    public <T> void dispatch(final T event, final Listener<T>[] listeners) {
+    public <T> void dispatch(final @NotNull T event, final @NotNull Listener<T>[] listeners) {
         int i = 0;
         try {
             while (i != listeners.length) {
