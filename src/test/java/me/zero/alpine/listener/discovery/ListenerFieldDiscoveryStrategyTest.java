@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.exception.ListenerBindException;
 import me.zero.alpine.exception.ListenerGenericTypeException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
@@ -72,8 +73,8 @@ public class ListenerFieldDiscoveryStrategyTest {
 
         final Setup instance = new Setup();
 
-        // Attempting to bind should throw an IllegalStateException whose cause is an NPE
-        final IllegalStateException ex = assertThrows(IllegalStateException.class, () -> candidate.bind(instance));
+        // Attempting to bind should throw a ListenerBindException whose cause is an NPE
+        final ListenerBindException ex = assertThrows(ListenerBindException.class, () -> candidate.bind(instance));
         assertInstanceOf(NullPointerException.class, ex.getCause());
     }
 

@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.exception.ListenerBindException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -65,7 +66,7 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
                 // TODO: Caching?, Filters, Priority, etc.
                 return new Listener<>(target, callback);
             } catch (Throwable e) {
-                throw new IllegalStateException("Unable to bind Listener method", e);
+                throw new ListenerBindException("Unable to bind Listener method", e);
             }
         };
     }

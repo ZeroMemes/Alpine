@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.exception.ListenerBindException;
 import me.zero.alpine.exception.ListenerGenericTypeException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
@@ -61,7 +62,7 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
                 listener.setTarget(target);
                 return listener;
             } catch (Throwable e) {
-                throw new IllegalStateException("Unable to read Listener field", e);
+                throw new ListenerBindException("Unable to read Listener field", e);
             }
         };
     }
