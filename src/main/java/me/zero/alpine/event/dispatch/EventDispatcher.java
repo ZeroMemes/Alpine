@@ -14,7 +14,7 @@ public interface EventDispatcher {
 
     <T> void dispatch(T event, Listener<T>[] listeners);
 
-    static EventDispatcher noExceptionHandler() {
+    static EventDispatcher fastEventDispatcher() {
         return FastEventDispatcher.INSTANCE;
     }
 

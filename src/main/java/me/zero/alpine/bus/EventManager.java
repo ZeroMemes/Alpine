@@ -70,7 +70,7 @@ public class EventManager implements EventBus {
         this.name = builder.name;
         this.recursiveDiscovery = builder.recursiveDiscovery;
         this.eventDispatcher = builder.exceptionHandler == null
-            ? EventDispatcher.noExceptionHandler()
+            ? EventDispatcher.fastEventDispatcher()
             : EventDispatcher.withExceptionHandler(builder.exceptionHandler);
 
         final ListenerListFactory factory = builder.listenerListFactory;
