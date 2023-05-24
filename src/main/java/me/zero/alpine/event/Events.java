@@ -10,7 +10,7 @@ import java.lang.reflect.TypeVariable;
  * @author Brady
  * @since 3.0.0
  */
-public class Events {
+public final class Events {
 
     private Events() {}
 
