@@ -10,9 +10,9 @@ import me.zero.alpine.listener.Subscribe;
  * @author Brady
  * @since 3.0.0
  */
-public final class ListenerGenericTypeException extends ListenerDiscoveryException {
+public final class ListenerFieldException extends ListenerDiscoveryException {
 
-    public ListenerGenericTypeException(String message) {
+    public ListenerFieldException(String message) {
         super(message);
     }
 }

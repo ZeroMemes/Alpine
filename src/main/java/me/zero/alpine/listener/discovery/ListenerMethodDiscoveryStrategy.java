@@ -1,6 +1,9 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.event.Events;
 import me.zero.alpine.exception.ListenerBindException;
+import me.zero.alpine.exception.ListenerDiscoveryException;
+import me.zero.alpine.exception.ListenerMethodException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -12,6 +15,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -35,14 +39,23 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
 
     private static boolean isListenerMethod(Method method) {
         return method.isAnnotationPresent(Subscribe.class) // The method is allowed to be automatically subscribed
-            && method.getParameters().length == 1          // The method has a single event parameter
             && !Modifier.isStatic(method.getModifiers());  // The method is an instance member
     }
 
     @SuppressWarnings("unchecked")
     private static <T> ListenerCandidate<T> asListener(Method method) {
         final Class<?> owner = method.getDeclaringClass();
-        final Class<T> target = (Class<T>) method.getParameters()[0].getType();
+
+        final Type[] parameters = method.getGenericParameterTypes();
+        if (parameters.length != 1) {
+            throw new ListenerMethodException("Listener methods must have exactly 1 parameter");
+        }
+
+        // Validate the event type. If an exception is thrown, wrap it in ListenerDiscoveryException and rethrow it.
+        final Class<T> target = Util.catchAndRethrow(
+            () -> Events.validateEventType(parameters[0]),
+            cause -> new ListenerDiscoveryException("Couldn't validate event type", cause)
+        );
 
         // Create a lazily-initialized factory for providing Consumers bound to the target method
         final Callable<MethodHandle> factory = Util.lazy(() -> {

@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.exception.ListenerDiscoveryException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -14,6 +15,15 @@ import java.util.stream.Stream;
 @FunctionalInterface
 public interface ListenerDiscoveryStrategy {
 
+    /**
+     * Locates all the listener candidates that are provided by the specified {@link Subscriber} class, according to
+     * this strategy.
+     *
+     * @param cls The class to search
+     * @return A stream of candidates
+     * @since 3.0.0
+     * @throws ListenerDiscoveryException If an error is detected in Listener definition
+     */
     Stream<ListenerCandidate<?>> findAll(Class<? extends Subscriber> cls);
 
     /**

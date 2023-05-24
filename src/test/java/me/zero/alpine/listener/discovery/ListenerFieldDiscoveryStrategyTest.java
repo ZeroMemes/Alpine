@@ -1,7 +1,7 @@
 package me.zero.alpine.listener.discovery;
 
 import me.zero.alpine.exception.ListenerBindException;
-import me.zero.alpine.exception.ListenerGenericTypeException;
+import me.zero.alpine.exception.ListenerDiscoveryException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -52,9 +52,23 @@ public class ListenerFieldDiscoveryStrategyTest {
             final Listener<T> subscribedListener = new Listener<>(o -> {});
         }
 
+        // Using an event with a generic type parameter is disallowed
+        class Setup3 implements Subscriber {
+            @Subscribe
+            final Listener<List<String>> subscribedListener = new Listener<>(o -> {});
+        }
+
+        // ... even if the type parameter isn't specified
+        class Setup4 implements Subscriber {
+            @Subscribe
+            final Listener<List> subscribedListener = new Listener<>(o -> {});
+        }
+
         // A terminal operation is required to evaluate the elements
-        assertThrows(ListenerGenericTypeException.class, () -> strategy.findAll(Setup1.class).count());
-        assertThrows(ListenerGenericTypeException.class, () -> strategy.findAll(Setup2.class).count());
+        assertThrows(ListenerDiscoveryException.class, () -> strategy.findAll(Setup1.class).count());
+        assertThrows(ListenerDiscoveryException.class, () -> strategy.findAll(Setup2.class).count());
+        assertThrows(ListenerDiscoveryException.class, () -> strategy.findAll(Setup3.class).count());
+        assertThrows(ListenerDiscoveryException.class, () -> strategy.findAll(Setup4.class).count());
     }
 
     @Test
