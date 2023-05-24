@@ -43,7 +43,7 @@ public class EventManager implements EventBus {
     /**
      * Whether to search superclasses of an instance for Listener fields.
      */
-    protected final boolean recursiveDiscovery;
+    protected final boolean parentDiscovery;
 
     protected final List<ListenerDiscoveryStrategy> discoveryStrategies;
 
@@ -64,7 +64,7 @@ public class EventManager implements EventBus {
 
         // Copy settings from builder
         this.name = builder.getName();
-        this.recursiveDiscovery = builder.isRecursiveDiscovery();
+        this.parentDiscovery = builder.isParentDiscovery();
         this.eventDispatcher = builder.getExceptionHandler()
             .map(EventDispatcher::withExceptionHandler)
             .orElseGet(EventDispatcher::fastEventDispatcher);
@@ -144,7 +144,7 @@ public class EventManager implements EventBus {
         // TODO: Per-class candidate caching
 
         return Collections.unmodifiableList(
-            // Get all super-classes of 'subscriber' that inherit Subscriber
+            // Get all super-classes of 'subscriber' that inherit Subscriber (if 'parentDiscovery' is enabled)
             this.getSubscriberHierarchy(subscriber.getClass())
                 // Apply each discovery strategy to each class, and use flatMap to create a stream of candidates
                 .flatMap(cls -> this.discoveryStrategies.stream().flatMap(strategy -> strategy.findAll(cls)))
@@ -155,7 +155,7 @@ public class EventManager implements EventBus {
     }
 
     protected Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
-        if (!this.recursiveDiscovery) {
+        if (!this.parentDiscovery) {
             return Stream.of(cls);
         }
 

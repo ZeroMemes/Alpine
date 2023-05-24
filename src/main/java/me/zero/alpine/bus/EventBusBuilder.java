@@ -16,7 +16,7 @@ public final class EventBusBuilder<T extends EventBus> {
 
     // Default Settings
     private String name = null;
-    private boolean recursiveDiscovery = false;
+    private boolean parentDiscovery = false;
     private boolean superListeners = false;
     private ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
     private ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
@@ -42,14 +42,14 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * Enables recursive {@link Listener} discovery, allowing {@link Listener} fields in superclasses of
-     * {@link Subscriber}s to be discovered and registered.
+     * Enables parent {@link Listener} discovery, allowing superclasses of a {@link Subscriber} implementation (which
+     * must also implement {@link Subscriber}) to be passed to the listener discovery strategies.
      *
      * @return This builder
      * @since 2.0.0
      */
-    public @NotNull EventBusBuilder<T> setRecursiveDiscovery() {
-        this.recursiveDiscovery = true;
+    public @NotNull EventBusBuilder<T> setParentDiscovery() {
+        this.parentDiscovery = true;
         return this;
     }
 
@@ -164,11 +164,11 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return {@code true} if recursive discovery is enabled
+     * @return {@code true} if parent class discovery is enabled
      * @since 3.0.0
      */
-    public boolean isRecursiveDiscovery() {
-        return this.recursiveDiscovery;
+    public boolean isParentDiscovery() {
+        return this.parentDiscovery;
     }
 
     /**
