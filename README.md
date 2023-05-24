@@ -4,7 +4,7 @@
 [![License][license-badge]](/LICENSE)
 [![Status][status-badge]](https://github.com/ZeroMemes/Alpine/actions/workflows/gradle.yml)
 [![Coverage][coverage-badge]](https://app.codecov.io/gh/ZeroMemes/Alpine)
-![Code Size][codesize-badge]
+[![Code Size][codesize-badge]](/)
 
 [releases-badge]: https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square
 [license-badge]: https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square
