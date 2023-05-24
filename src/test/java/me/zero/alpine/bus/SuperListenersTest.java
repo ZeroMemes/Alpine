@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
 
@@ -30,63 +29,63 @@ public class SuperListenersTest {
 
     @Test
     void testNone() {
-        final Consumer<Object> callback = mock(Consumer.class);
-        final Listener<Object> listener = new Listener<>(Object.class, callback);
+        final Listener<Object> listener = mock(Listener.class);
+        when(listener.getTarget()).thenReturn(Object.class);
 
         bus.subscribe(listener);
-        verify(callback, never()).accept(any());
+        verify(listener, never()).accept(any());
 
         final Object event = new Object();
         bus.post(event);
-        verify(callback, times(1)).accept(event);
+        verify(listener, times(1)).accept(event);
     }
 
     @Test
     void testSingle() {
-        final Consumer<Object> callback = mock(Consumer.class);
-        final Listener<Object> listener = new Listener<>(Object.class, callback);
+        final Listener<Object> listener = mock(Listener.class);
+        when(listener.getTarget()).thenReturn(Object.class);
 
         bus.subscribe(listener);
-        verify(callback, never()).accept(any());
+        verify(listener, never()).accept(any());
 
         // Class with one parent (Object)
         class Event {}
         final Event event = new Event();
 
         bus.post(event);
-        verify(callback, times(1)).accept(event);
+        verify(listener, times(1)).accept(event);
     }
 
     @Test
     @SuppressWarnings("rawtypes")
     void testMulti() {
-        final Consumer<Object> callbackA = mock(Consumer.class);
-        final Listener<List> listenerA = new Listener<>(List.class, callbackA::accept);
+        final Listener listenerA = mock(Listener.class);
+        when(listenerA.getTarget()).thenReturn(List.class);
 
-        final Consumer<Object> callbackB = mock(Consumer.class);
-        final Listener<Collection> listenerB = new Listener<>(Collection.class, callbackB::accept);
+        final Listener listenerB = mock(Listener.class);
+        when(listenerB.getTarget()).thenReturn(Collection.class);
 
         bus.subscribe(listenerA);
         bus.subscribe(listenerB);
-        verify(callbackA, never()).accept(any());
-        verify(callbackB, never()).accept(any());
+        verify(listenerA, never()).accept(any());
+        verify(listenerB, never()).accept(any());
 
         // Ensure that the listeners aren't called twice due to 2 inheritance paths
         //  ArrayList -> List
         //  ArrayList -> AbstractList -> List
         final ArrayList list = new ArrayList();
         bus.post(list);
-        verify(callbackA, times(1)).accept(list);
-        verify(callbackB, times(1)).accept(list);
+        verify(listenerA, times(1)).accept(list);
+        verify(listenerB, times(1)).accept(list);
 
         // Collection which doesn't implement List
         HashSet set = new HashSet();
         bus.post(set);
-        verify(callbackA, never()).accept(set);
-        verify(callbackB, times(1)).accept(set);
+        verify(listenerA, never()).accept(set);
+        verify(listenerB, times(1)).accept(set);
 
         // Total # of callback invocations
-        verify(callbackA, times(1)).accept(any());
-        verify(callbackB, times(2)).accept(any());
+        verify(listenerA, times(1)).accept(any());
+        verify(listenerB, times(2)).accept(any());
     }
 }

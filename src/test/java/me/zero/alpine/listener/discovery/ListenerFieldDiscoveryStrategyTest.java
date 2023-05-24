@@ -9,11 +9,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Brady
@@ -83,13 +81,11 @@ public class ListenerFieldDiscoveryStrategyTest {
      */
     static class EventHandler implements Subscriber {
 
-        final Consumer<String> subscribedCallback = mock(Consumer.class);
-
         // ******************
         //    VALID FIELDS
         // ******************
         @Subscribe
-        final Listener<String> subscribedListener = new Listener<>(String.class, this.subscribedCallback);
+        final Listener<String> subscribedListener = new Listener<>(String.class, s -> {});
 
         // ******************
         //   INVALID FIELDS

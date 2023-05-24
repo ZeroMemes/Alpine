@@ -5,9 +5,6 @@ import me.zero.alpine.listener.ListenerExceptionHandler;
 import org.junit.jupiter.api.*;
 import org.mockito.InOrder;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -57,25 +54,23 @@ public class ExceptionHandlingDispatcherTest {
         });
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nested
     class CallOrder {
 
-        Consumer<Object> before, throwing, after;
-        Listener<Object>[] listeners;
+        Listener before, throwing, after;
+        Listener[] listeners;
         InOrder inOrder;
 
         @BeforeEach
         void setup() {
-            before = mock(Consumer.class);
-            throwing = mock(Consumer.class);
-            after = mock(Consumer.class);
+            before = mock(Listener.class);
+            throwing = mock(Listener.class);
+            after = mock(Listener.class);
 
             doThrow(new RuntimeException()).when(throwing).accept(any());
 
-            // noinspection unchecked
-            listeners = (Listener<Object>[]) Stream.of(before, throwing, after)
-                .map(cb -> new Listener<>(Object.class, cb))
-                .toArray(Listener[]::new);
+            listeners = new Listener[] { before, throwing, after };
             inOrder = inOrder(before, throwing, after);
         }
 
