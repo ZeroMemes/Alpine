@@ -1,10 +1,10 @@
 # Alpine
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square)
-![GitHub](https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle.yml?style=flat-square)
-![Codecov](https://img.shields.io/codecov/c/github/ZeroMemes/Alpine?style=flat-square)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ZeroMemes/Alpine?style=flat-square)
+[![Releases](https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square)](https://github.com/ZeroMemes/Alpine/releases)
+[![License](https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square)](/LICENSE)
+[![Status](https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle.yml?style=flat-square)](https://github.com/ZeroMemes/Alpine/actions/workflows/gradle.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/ZeroMemes/Alpine?style=flat-square)](https://app.codecov.io/gh/ZeroMemes/Alpine)
+![Code Size](https://img.shields.io/github/languages/code-size/ZeroMemes/Alpine?style=flat-square)
 
 A lightweight event system for Java 8+
 
