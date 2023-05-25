@@ -1,6 +1,10 @@
 package me.zero.alpine.exception;
 
+import me.zero.alpine.listener.discovery.ListenerCandidate;
+
 /**
+ * Thrown by {@link ListenerCandidate#bind} when a candidate is unable to be bound.
+ *
  * @author Brady
  * @since 3.0.0
  */
