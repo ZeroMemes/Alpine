@@ -24,10 +24,7 @@ public final class ListenerArrayList<T> implements ListenerList<T> {
 
     @Override
     public boolean add(@NotNull Listener<T> listener) {
-        if (this.backing.contains(listener)) {
-            return false;
-        }
-        return this.backing.add(listener); // returns 'true'
+        return !this.backing.contains(listener) && this.backing.add(listener);
     }
 
     @Override
