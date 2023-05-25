@@ -1,9 +1,8 @@
 package me.zero.alpine.listener;
 
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 /**
  * @author Brady
@@ -11,10 +10,10 @@ import java.util.ArrayList;
  */
 public final class ListenerArrayList<T> implements ListenerList<T> {
 
-    private final ArrayList<Listener<T>> backing;
+    private final ObjectArraySet<Listener<T>> backing;
 
     public ListenerArrayList() {
-        this.backing = new ArrayList<>();
+        this.backing = new ObjectArraySet<>();
     }
 
     @Override
@@ -24,7 +23,7 @@ public final class ListenerArrayList<T> implements ListenerList<T> {
 
     @Override
     public boolean add(@NotNull Listener<T> listener) {
-        return !this.backing.contains(listener) && this.backing.add(listener);
+        return this.backing.add(listener);
     }
 
     @Override
