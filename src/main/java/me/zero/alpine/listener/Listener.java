@@ -10,6 +10,7 @@ import net.jodah.typetools.TypeResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -110,9 +111,10 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
      * @param callback The event callback function.
      * @param priority The priority value. See {@link EventPriority}.
      * @param filters  Checks used to validate the event object before the {@code callback} is invoked.
-     * @throws EventTypeException If the event target isn't a valid event type. This could happen unexpectedly if the
-     *                            target isn't specified, and the TypeResolver resolves a generic superclass instead of
-     *                            the intended target. In this case, the event target should be explicitly specified.
+     * @throws EventTypeException If the event target isn't a {@link Events#validateEventType(Type) valid event type}.
+     *                            This could happen unexpectedly if the target isn't specified, and the TypeResolver
+     *                            resolves a generic superclass instead of the intended target. In this case, the event
+     *                            target should be explicitly specified.
      */
     @SafeVarargs
     public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
