@@ -6,6 +6,8 @@ import me.zero.alpine.listener.concurrent.ReadWriteLockListenerList;
 import me.zero.alpine.listener.concurrent.SynchronizedListenerList;
 import org.junit.jupiter.api.Test;
 
+import java.util.Iterator;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,15 +22,17 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
 
     @Test
     default void testPost() {
-        T list = create();
-
-        Listener<Object> listener = mock(Listener.class);
         EventDispatcher dispatcher = mock(EventDispatcher.class);
         doAnswer(ctx -> {
-            listener.accept(ctx.getArgument(0));
+            Iterator<Listener<Object>> it = ctx.getArgument(1);
+            while (it.hasNext()) {
+                it.next().accept(ctx.getArgument(0));
+            }
             return null;
         }).when(dispatcher).dispatch(any(), any());
 
+        T list = create();
+        Listener<Object> listener = mock(Listener.class);
         Object event = new Object();
 
         list.add(listener);
