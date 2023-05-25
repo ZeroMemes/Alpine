@@ -28,29 +28,19 @@ public class EventManager implements EventBus {
      * field instances. This reduces the amount of reflection calls that would otherwise be required when adding a
      * subscriber to the event bus.
      */
-    protected final ConcurrentHashMap<Subscriber, List<Listener<?>>> subscriberListenerCache;
+    private final ConcurrentHashMap<Subscriber, List<Listener<?>>> subscriberListenerCache;
 
     /**
      * Map containing all event classes and the currently subscribed listeners.
      */
-    protected volatile Event2ListenersMap activeListeners;
+    private volatile Event2ListenersMap activeListeners;
+    private final Object activeListenersWriteLock;
 
-    protected final Object activeListenersWriteLock;
-
-    /**
-     * The name of this bus.
-     */
+    // Settings specified through EventBusBuilder
     protected final String name;
-
-    /**
-     * Whether to search superclasses of an instance for Listener fields.
-     */
     protected final boolean parentDiscovery;
-
     protected final List<ListenerDiscoveryStrategy> discoveryStrategies;
-
     protected final EventDispatcher eventDispatcher;
-
     protected final ListenerListFactory listenerListFactory;
 
     public EventManager(@NotNull String name) {
@@ -216,7 +206,7 @@ public class EventManager implements EventBus {
         return new EventBusBuilder<>();
     }
 
-    protected static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerList<?>> {
+    private static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerList<?>> {
 
         /**
          * @return {@code true} if the next insertion of a new key will require a rehash.
