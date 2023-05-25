@@ -132,7 +132,7 @@ public class EventManager implements EventBus {
         return "EventManager{name='" + this.name + "'}";
     }
 
-    protected List<Listener<?>> getListeners(Subscriber subscriber) {
+    private List<Listener<?>> getListeners(Subscriber subscriber) {
         // TODO: Per-class candidate caching
 
         return Collections.unmodifiableList(
@@ -146,7 +146,7 @@ public class EventManager implements EventBus {
         );
     }
 
-    protected Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
+    private Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
         if (!this.parentDiscovery) {
             return Stream.of(cls);
         }
@@ -170,7 +170,7 @@ public class EventManager implements EventBus {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
+    private <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
         // This method of initialization results in much faster dispatch than 'computeIfAbsent'
         // It also guarantees that only one thread can call 'createListenerList' at a time
         final ListenerList<T> existing = (ListenerList<T>) this.activeListeners.get(target);
