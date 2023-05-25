@@ -1,9 +1,11 @@
 package me.zero.alpine.bus;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.zero.alpine.event.Events;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.*;
 import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
+import me.zero.alpine.util.Util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -189,6 +191,9 @@ public class EventManager implements EventBus {
             // Fetch the group again, as it could've been initialized since the lock was released.
             final ListenerList<T> group = (ListenerList<T>) this.activeListeners.get(target);
             if (group == null) {
+                // Validate the event type, throwing an IllegalArgumentException if it is invalid
+                Util.catchAndRethrow(() -> Events.validateEventType(target), IllegalArgumentException::new);
+
                 ListenerList<T> list = this.listenerListFactory.create(target);
 
                 // If insertion of a new key will require a rehash, then clone the map and reassign the field.
