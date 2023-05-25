@@ -3,6 +3,7 @@ package me.zero.alpine.listener.concurrent;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerList;
+import me.zero.alpine.util.Util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class CopyOnWriteListenerList<T> implements ListenerList<T> {
 
     @Override
     public void post(@NotNull T event, @NotNull EventDispatcher dispatcher) {
-        dispatcher.dispatch(event, this.listeners);
+        dispatcher.dispatch(event, Util.arrayIterator(this.listeners));
     }
 
     @Override

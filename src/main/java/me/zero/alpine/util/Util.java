@@ -4,6 +4,8 @@ import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -101,5 +103,25 @@ public final class Util {
         } catch (Throwable cause) {
             throw wrapper.apply(cause);
         }
+    }
+
+    public static <T> Iterator<T> arrayIterator(final T[] array) {
+        return new Iterator<T>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return this.i != array.length;
+            }
+
+            @Override
+            public T next() {
+                return array[this.i++];
+            }
+        };
+    }
+
+    public static <T> Iterator<T> singletonIterator(final T element) {
+        return Collections.singleton(element).iterator();
     }
 }

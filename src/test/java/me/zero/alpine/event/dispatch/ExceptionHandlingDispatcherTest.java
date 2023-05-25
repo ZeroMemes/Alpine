@@ -2,6 +2,7 @@ package me.zero.alpine.event.dispatch;
 
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerExceptionHandler;
+import me.zero.alpine.util.Util;
 import org.junit.jupiter.api.*;
 import org.mockito.InOrder;
 
@@ -39,7 +40,7 @@ public class ExceptionHandlingDispatcherTest {
     void testPropagateThrow() {
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             // Dispatch the throwing listener
-            propagateDispatcher.dispatch(new Object(), new Listener[] { throwingListener });
+            propagateDispatcher.dispatch(new Object(), Util.singletonIterator(throwingListener));
         });
 
         // The thrown exception is the same object as the one expected to be thrown
@@ -50,18 +51,18 @@ public class ExceptionHandlingDispatcherTest {
     void testIgnoreThrow() {
         assertDoesNotThrow(() -> {
             // Dispatch the throwing listener
-            ignoreDispatcher.dispatch(new Object(), new Listener[] { throwingListener });
+            ignoreDispatcher.dispatch(new Object(), Util.singletonIterator(throwingListener));
         });
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Nested
     class CallOrder {
 
-        Listener before, throwing, after;
-        Listener[] listeners;
+        Listener<Object> before, throwing, after;
+        Listener<Object>[] listeners;
         InOrder inOrder;
 
+        @SuppressWarnings({"unchecked"})
         @BeforeEach
         void setup() {
             before = mock(Listener.class);
@@ -77,13 +78,13 @@ public class ExceptionHandlingDispatcherTest {
         @Test
         void testPropagate() {
             try {
-                propagateDispatcher.dispatch(new Object(), listeners);
+                propagateDispatcher.dispatch(new Object(), Util.arrayIterator(listeners));
             } catch (Exception ignored) {}
         }
 
         @Test
         void testIgnore() {
-            ignoreDispatcher.dispatch(new Object(), listeners);
+            ignoreDispatcher.dispatch(new Object(), Util.arrayIterator(listeners));
         }
 
         @AfterEach
