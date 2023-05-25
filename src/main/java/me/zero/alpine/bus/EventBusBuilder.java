@@ -37,6 +37,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @since 2.0.0
      */
     public @NotNull EventBusBuilder<T> setName(@NotNull String name) {
+        Objects.requireNonNull(name);
         this.name = name;
         return this;
     }
@@ -191,7 +192,7 @@ public final class EventBusBuilder<T extends EventBus> {
      * @return The listener list factory
      * @since 3.0.0
      */
-    public ListenerListFactory getListenerListFactory() {
+    public @NotNull ListenerListFactory getListenerListFactory() {
         return this.listenerListFactory;
     }
 
