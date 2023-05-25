@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Brady
  * @since 3.0.0
  */
-public class ReadWriteLockListenerList<T> implements ListenerList<T> {
+public final class ReadWriteLockListenerList<T> implements ListenerList<T> {
 
     private final ListenerList<T> backing;
     private final ReentrantReadWriteLock.ReadLock r;

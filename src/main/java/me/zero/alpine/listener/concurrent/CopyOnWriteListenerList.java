@@ -12,9 +12,9 @@ import java.util.Arrays;
  * @author Brady
  * @since 3.0.0
  */
-public class CopyOnWriteListenerList<T> implements ListenerList<T> {
+public final class CopyOnWriteListenerList<T> implements ListenerList<T> {
 
-    protected volatile Listener<T>[] listeners;
+    private volatile Listener<T>[] listeners;
     private final Object lock;
 
     public CopyOnWriteListenerList() {

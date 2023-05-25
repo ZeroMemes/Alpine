@@ -11,7 +11,7 @@ import java.util.Objects;
  * @author Brady
  * @since 3.0.0
  */
-public class SynchronizedListenerList<T> implements ListenerList<T> {
+public final class SynchronizedListenerList<T> implements ListenerList<T> {
 
     private final ListenerList<T> backing;
     private final Object sync;
