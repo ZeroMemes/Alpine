@@ -56,7 +56,7 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
             cause -> new ListenerDiscoveryException("Couldn't validate event type", cause)
         );
 
-        return instance -> {
+        return ListenerCandidate.single(instance -> {
             try {
                 // Create a lookup in the owner class
                 final MethodHandles.Lookup lookup = Util.getLookup().in(owner);
@@ -68,6 +68,6 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
             } catch (Throwable e) {
                 throw new ListenerBindException("Unable to bind Listener field", e);
             }
-        };
+        });
     }
 }

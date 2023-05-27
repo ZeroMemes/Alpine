@@ -33,8 +33,9 @@ public class ListenerFieldDiscoveryStrategyTest {
         final List<ListenerCandidate<?>> candidates = strategy.findAll(EventHandler.class).collect(Collectors.toList());
         assertEquals(candidates.size(), 1);
 
-        final Listener<String> listener = (Listener<String>) candidates.get(0).bind(handler);
-        assertEquals(listener, handler.subscribedListener);
+        final List<Listener<String>> listeners = candidates.get(0).bind(handler).map(l -> (Listener<String>) l).collect(Collectors.toList());
+        assertEquals(listeners.size(), 1);
+        assertEquals(listeners.get(0), handler.subscribedListener);
     }
 
     @Test

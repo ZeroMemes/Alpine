@@ -71,7 +71,7 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
             ).getTarget();
         });
 
-        return instance -> {
+        return ListenerCandidate.single(instance -> {
             try {
                 // Bind the instance to the event callback method using the factory
                 final Consumer<T> callback = (Consumer<T>) factory.call().invoke(instance);
@@ -81,6 +81,6 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
             } catch (Throwable e) {
                 throw new ListenerBindException("Unable to bind Listener method", e);
             }
-        };
+        });
     }
 }

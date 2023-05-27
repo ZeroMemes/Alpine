@@ -140,8 +140,8 @@ public class EventManager implements EventBus {
             this.getSubscriberHierarchy(subscriber.getClass())
                 // Apply each discovery strategy to each class, and use flatMap to create a stream of candidates
                 .flatMap(cls -> this.discoveryStrategies.stream().flatMap(strategy -> strategy.findAll(cls)))
-                // Bind the subscriber instance to each candidate to get a Listener instance
-                .map(candidate -> candidate.bind(subscriber))
+                // Bind the subscriber instance to each candidate to its Listener instances
+                .flatMap(candidate -> candidate.bind(subscriber))
                 .collect(Collectors.toList())
         );
     }
