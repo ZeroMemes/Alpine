@@ -14,6 +14,16 @@ import java.util.Objects;
 @FunctionalInterface
 public interface EventDispatcher {
 
+    /**
+     * Dispatches the specified event over all Listeners in the specified {@link Iterator} via {@link Listener#accept}.
+     * Whether this is done synchronously or asynchronously, as well as the routine for handling exceptions is entirely
+     * implementation-dependent.
+     *
+     * @param event     The event
+     * @param listeners The listeners to dispatch the event to
+     * @param <T>       The event type
+     * @since 3.0.0
+     */
     <T> void dispatch(@NotNull T event, @NotNull Iterator<Listener<T>> listeners);
 
     /**
