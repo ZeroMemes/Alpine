@@ -36,12 +36,17 @@ public final class Events {
             throw new EventTypeException("Unable to resolve Listener target class (Unrecognized " + type.getClass() + ")");
         }
 
-        // If the target type actually is a class, make sure that it doesn't have any type
-        // parameters that were omitted, avoiding the other checks.
         // noinspection unchecked
         Class<T> target = (Class<T>) type;
+        // Make sure that it doesn't have any type parameters that were omitted, avoiding the other checks.
         if (target.getTypeParameters().length != 0) {
             throw new EventTypeException("Listener target cannot be a generic type");
+        }
+        if (target.isPrimitive()) {
+            throw new EventTypeException("Listener target cannot be a primitive");
+        }
+        if (target.isArray()) {
+            throw new EventTypeException("Listener target cannot be an array type");
         }
         return target;
     }
