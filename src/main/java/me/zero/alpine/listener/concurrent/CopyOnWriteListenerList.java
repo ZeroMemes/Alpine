@@ -28,7 +28,7 @@ public final class CopyOnWriteListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public final boolean add(@NotNull Listener<T> listener) {
+    public boolean add(@NotNull Listener<T> listener) {
         synchronized (this.lock) {
             // TODO: Double-check to avoid always locking
             Listener<T>[] arr = this.listeners;
@@ -52,7 +52,7 @@ public final class CopyOnWriteListenerList<T> implements ListenerList<T> {
     }
 
     @Override
-    public final boolean remove(@NotNull Listener<T> listener) {
+    public boolean remove(@NotNull Listener<T> listener) {
         synchronized (this.lock) {
             // TODO: Double-check to avoid always locking
             Listener<T>[] arr = this.listeners;
