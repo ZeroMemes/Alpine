@@ -40,7 +40,7 @@ public class ListenerMethodDiscoveryStrategyTest {
         // Listener 'accept' should invoke the callback method
         final String event = "TestStringEvent";
         listeners.get(0).accept(event);
-        verify(handler, times(0)).onEvent(event);
+        verify(handler, times(1)).onEventSubscribed(event);
     }
 
     @Test
