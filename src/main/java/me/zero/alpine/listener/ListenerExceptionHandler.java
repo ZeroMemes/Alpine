@@ -11,7 +11,7 @@ public interface ListenerExceptionHandler {
 
     /**
      * Called when an exception is thrown by a Listener upon event dispatch. If {@code true} is returned from this
-     * function, then the exception is propagated upwards and may be handled by another part of the application. If
+     * method, then the exception is propagated upwards and may be handled by another part of the application. If
      * {@code false} is returned, the exception is completely ignored, which can have unintended side effects that
      * result in hard-to-debug errors.
      *

@@ -17,7 +17,7 @@ public final class Events {
     /**
      * Validates the specified type as a valid event type. In order for a type to be considered valid, it must be a
      * {@link Class} that has no type parameters. This does not include raw types, which are still considered invalid.
-     * If the type is valid, it is returned from this function as a {@link Class}; otherwise, an
+     * If the type is valid, it is returned from this method as a {@link Class}; otherwise, an
      * {@link EventTypeException} is thrown with a descriptive error message.
      *
      * @param type An event type
