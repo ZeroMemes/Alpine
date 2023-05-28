@@ -70,7 +70,7 @@ public class EventManager implements EventBus {
             this.listenerListFactory = new ListenerListFactory() {
                 @SuppressWarnings("unchecked")
                 @Override
-                public <T> ListenerList<T> create(Class<T> cls) {
+                public <T> @NotNull ListenerList<T> create(Class<T> cls) {
                     ListenerGroup<T> group = new ListenerGroup<>(factory.create(cls));
                     EventManager.this.activeListeners.forEach((activeTarget, activeGroup) -> {
                         // Link target to inherited types

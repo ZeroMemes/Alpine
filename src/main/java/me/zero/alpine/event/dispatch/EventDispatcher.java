@@ -32,7 +32,7 @@ public interface EventDispatcher {
      * @return The dispatcher
      * @since 3.0.0
      */
-    static EventDispatcher fastEventDispatcher() {
+    static @NotNull EventDispatcher fastEventDispatcher() {
         return FastEventDispatcher.INSTANCE;
     }
 
@@ -46,7 +46,7 @@ public interface EventDispatcher {
      * @return The dispatcher
      * @since 3.0.0
      */
-    static EventDispatcher withExceptionHandler(@NotNull ListenerExceptionHandler exceptionHandler) {
+    static @NotNull EventDispatcher withExceptionHandler(@NotNull ListenerExceptionHandler exceptionHandler) {
         return new ExceptionHandlingDispatcher(Objects.requireNonNull(exceptionHandler));
     }
 }
