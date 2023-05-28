@@ -24,14 +24,12 @@ public interface ListenerListFactory {
     <T> @NotNull ListenerList<T> create(Class<T> eventType);
 
     /**
-     * Default implementation of {@link ListenerListFactory} used by {@link EventBusBuilder}. Returns a new instance of
-     * {@link CopyOnWriteListenerList} upon each invocation.
+     * Returns the default implementation of {@link ListenerListFactory} used by {@link EventBusBuilder}, which creates
+     * a new instance of {@link CopyOnWriteListenerList} upon each {@link ListenerListFactory#create} invocation.
+     *
+     * @return The default factory
      */
-    ListenerListFactory DEFAULT = new ListenerListFactory() {
-
-        @Override
-        public <T> @NotNull ListenerList<T> create(Class<T> cls) {
-            return new CopyOnWriteListenerList<>();
-        }
-    };
+    static @NotNull ListenerListFactory defaultFactory() {
+        return DefaultListenerListFactory.INSTANCE;
+    }
 }

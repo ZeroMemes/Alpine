@@ -18,8 +18,8 @@ public final class EventBusBuilder<T extends EventBus> {
     private String name = null;
     private boolean parentDiscovery = false;
     private boolean superListeners = false;
-    private ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.DEFAULT;
-    private ListenerListFactory listenerListFactory = ListenerListFactory.DEFAULT;
+    private ListenerExceptionHandler exceptionHandler = ListenerExceptionHandler.defaultHandler();
+    private ListenerListFactory listenerListFactory = ListenerListFactory.defaultFactory();
     private final List<ListenerDiscoveryStrategy> discoveryStrategies = new ArrayList<>();
     private boolean attachable = false;
 

@@ -1,6 +1,7 @@
 package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventBusBuilder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Brady
@@ -24,22 +25,13 @@ public interface ListenerExceptionHandler {
     <T> boolean handleException(T event, Listener<T> listener, Throwable cause);
 
     /**
-     * Default implementation of {@link ListenerExceptionHandler} used by {@link EventBusBuilder}. Prints a simple
-     * message indicating that an event Listener threw an exception, along with the exception stacktrace, and then
-     * permits the exception to propagate upwards.
+     * Returns the default implementation of {@link ListenerExceptionHandler} used by {@link EventBusBuilder}. The
+     * returned handler prints a simple message indicating that an event Listener threw an exception, along with the
+     * exception stacktrace, and then permits the exception to propagate upwards.
+     *
+     * @return The default handler
      */
-    ListenerExceptionHandler DEFAULT = new ListenerExceptionHandler() {
-
-        @Override
-        public <T> boolean handleException(T event, Listener<T> listener, Throwable cause) {
-            System.err.println("An exception was thrown by a Listener while dispatching an Event" +
-                "\n\tEvent:    " + event +
-                "\n\tType:     " + event.getClass() +
-                "\n\tListener: " + listener +
-                "\n\tTarget:   " + listener.getTarget()
-            );
-            cause.printStackTrace();
-            return true;
-        }
-    };
+    static @NotNull ListenerExceptionHandler defaultHandler() {
+        return DefaultListenerExceptionHandler.INSTANCE;
+    }
 }
