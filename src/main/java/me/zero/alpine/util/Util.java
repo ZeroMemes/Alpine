@@ -1,5 +1,6 @@
 package me.zero.alpine.util;
 
+import org.jetbrains.annotations.ApiStatus;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandles;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
  * @author Brady
  * @since 3.0.0
  */
+@ApiStatus.Internal
 public final class Util {
 
     private Util() {}
