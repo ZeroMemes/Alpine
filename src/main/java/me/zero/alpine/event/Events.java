@@ -1,10 +1,12 @@
 package me.zero.alpine.event;
 
 import me.zero.alpine.exception.EventTypeException;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Objects;
 
 /**
  * @author Brady
@@ -23,9 +25,11 @@ public final class Events {
      * @param type An event type
      * @return The validated event class
      * @throws EventTypeException If the type is invalid
+     * @throws NullPointerException If the type is {@code null}
      * @since 3.0.0
      */
-    public static <T> Class<T> validateEventType(Type type) {
+    public static <T> Class<T> validateEventType(@NotNull Type type) {
+        Objects.requireNonNull(type);
         if (type instanceof TypeVariable) {
             throw new EventTypeException("Listener target cannot be a type variable");
         }
