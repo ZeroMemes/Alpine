@@ -32,10 +32,10 @@ public class ListenerMethodDiscoveryStrategyTest {
         final EventHandler handler = mock(EventHandler.class);
 
         final List<ListenerCandidate<?>> candidates = strategy.findAll(EventHandler.class).collect(Collectors.toList());
-        assertEquals(candidates.size(), 1);
+        assertEquals(1, candidates.size());
 
         final List<Listener<String>> listeners = candidates.get(0).bind(handler).map(l -> (Listener<String>) l).collect(Collectors.toList());
-        assertEquals(listeners.size(), 1);
+        assertEquals(1, listeners.size());
 
         // Listener 'accept' should invoke the callback method
         final String event = "TestStringEvent";

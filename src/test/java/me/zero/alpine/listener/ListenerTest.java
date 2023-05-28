@@ -18,21 +18,21 @@ public class ListenerTest {
         final Listener<Object> high = new Listener<>(e -> {}, EventPriority.HIGH);
 
         // Compare with self is 0
-        assertEquals(low.compareTo(low), 0);
-        assertEquals(mid.compareTo(mid), 0);
-        assertEquals(high.compareTo(high), 0);
+        assertEquals(0, low.compareTo(low));
+        assertEquals(0, mid.compareTo(mid));
+        assertEquals(0, high.compareTo(high));
 
         // Comparison is only based on priority
         final Listener<Object> duplicate = new Listener<>(e -> {}, high.getPriority());
-        assertEquals(high.compareTo(duplicate), 0);
-        assertEquals(duplicate.compareTo(high), 0);
+        assertEquals(0, high.compareTo(duplicate));
+        assertEquals(0, duplicate.compareTo(high));
 
         // Lower priorities compare greater
-        assertEquals(low.compareTo(mid), 1);
-        assertEquals(mid.compareTo(high), 1);
+        assertEquals(1, low.compareTo(mid));
+        assertEquals(1, mid.compareTo(high));
 
         // Higher priorities compare lesser
-        assertEquals(high.compareTo(mid), -1);
-        assertEquals(mid.compareTo(low), -1);
+        assertEquals(-1, high.compareTo(mid));
+        assertEquals(-1, mid.compareTo(low));
     }
 }
