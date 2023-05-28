@@ -73,7 +73,7 @@ public final class EventBusBuilder<T extends EventBus> {
      *
      * @param exceptionHandler The exception handler
      * @return This builder
-     * @see ListenerExceptionHandler#DEFAULT
+     * @see ListenerExceptionHandler#defaultHandler()
      * @since 3.0.0
      */
     public @NotNull EventBusBuilder<T> setExceptionHandler(@Nullable ListenerExceptionHandler exceptionHandler) {
@@ -96,7 +96,7 @@ public final class EventBusBuilder<T extends EventBus> {
      *
      * @param factory The factory
      * @return This builder
-     * @see ListenerListFactory#DEFAULT
+     * @see ListenerListFactory#defaultFactory()
      * @since 3.0.0
      */
     public @NotNull EventBusBuilder<T> setListenerListFactory(@NotNull ListenerListFactory factory) {
