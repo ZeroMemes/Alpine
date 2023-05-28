@@ -1,6 +1,7 @@
 package me.zero.alpine.listener.discovery;
 
 import me.zero.alpine.exception.ListenerBindException;
+import me.zero.alpine.exception.ListenerDiscoveryException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
@@ -35,6 +36,19 @@ public class ListenerFieldDiscoveryStrategyTest {
         final List<Listener<String>> listeners = candidates.get(0).bind(handler).map(l -> (Listener<String>) l).collect(Collectors.toList());
         assertEquals(listeners.size(), 1);
         assertEquals(listeners.get(0), handler.subscribedListener);
+    }
+
+    @Test
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
+    void testMissingParameter() {
+        // Absence of a type parameter is disallowed
+        class Setup implements Subscriber {
+            @Subscribe
+            final Listener subscribedListener = new Listener<>(o -> {});
+        }
+
+        // A terminal operation is required to evaluate the elements
+        assertThrows(ListenerDiscoveryException.class, () -> strategy.findAll(Setup.class).count());
     }
 
     @Test
