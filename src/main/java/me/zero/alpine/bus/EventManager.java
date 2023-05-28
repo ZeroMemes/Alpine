@@ -8,12 +8,13 @@ import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
 import me.zero.alpine.util.Util;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Default implementation of {@link EventBus}.
@@ -150,23 +151,10 @@ public class EventManager implements EventBus {
         if (!this.parentDiscovery) {
             return Stream.of(cls);
         }
-
-        return StreamSupport.stream(new Spliterators.AbstractSpliterator<Class<? extends Subscriber>>(
-            Long.MAX_VALUE, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL
-        ) {
-            private Class<?> curr = cls;
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public boolean tryAdvance(Consumer<? super Class<? extends Subscriber>> action) {
-                if (Subscriber.class.isAssignableFrom(this.curr)) {
-                    action.accept((Class<? extends Subscriber>) this.curr);
-                    this.curr = this.curr.getSuperclass();
-                    return true;
-                }
-                return false;
-            }
-        }, false);
+        // noinspection unchecked
+        return Util.flattenHierarchy(cls).stream()
+            .filter(Subscriber.class::isAssignableFrom)
+            .map(c -> (Class<? extends Subscriber>) c);
     }
 
     @SuppressWarnings("unchecked")

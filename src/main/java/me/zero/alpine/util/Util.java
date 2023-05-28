@@ -4,8 +4,7 @@ import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,9 +19,11 @@ public final class Util {
 
     private Util() {}
 
+    private static final WeakHashMap<Class<?>, Set<Class<?>>> HIERARCHY_CACHE;
     private static final MethodHandles.Lookup LOOKUP;
 
     static {
+        HIERARCHY_CACHE = new WeakHashMap<>();
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
@@ -123,5 +124,24 @@ public final class Util {
 
     public static <T> Iterator<T> singletonIterator(final T element) {
         return Collections.singleton(element).iterator();
+    }
+
+    public synchronized static <T> Set<Class<?>> flattenHierarchy(final Class<T> cls) {
+        final Set<Class<?>> cached = HIERARCHY_CACHE.get(cls);
+        if (cached != null) {
+            return cached;
+        }
+
+        final Set<Class<?>> flattened = new HashSet<>();
+        flattened.add(cls);
+        if (cls.getSuperclass() != null) {
+            flattened.addAll(flattenHierarchy(cls.getSuperclass()));
+        }
+        for (Class<?> iface : cls.getInterfaces()) {
+            flattened.addAll(flattenHierarchy(iface));
+        }
+
+        HIERARCHY_CACHE.put(cls, flattened);
+        return flattened;
     }
 }
