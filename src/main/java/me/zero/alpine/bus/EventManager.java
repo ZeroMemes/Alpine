@@ -1,19 +1,18 @@
 package me.zero.alpine.bus;
 
-import me.zero.alpine.listener.EventSubscriber;
-import me.zero.alpine.listener.Listener;
-import me.zero.alpine.listener.Subscribe;
-import net.jodah.typetools.TypeResolver;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.zero.alpine.event.Events;
+import me.zero.alpine.event.dispatch.EventDispatcher;
+import me.zero.alpine.listener.*;
+import me.zero.alpine.listener.discovery.ListenerDiscoveryStrategy;
+import me.zero.alpine.util.Util;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +20,7 @@ import java.util.stream.Stream;
  * Default implementation of {@link EventBus}.
  *
  * @author Brady
- * @since 1/19/2017
+ * @since 1.2
  */
 public class EventManager implements EventBus {
 
@@ -30,107 +29,103 @@ public class EventManager implements EventBus {
      * field instances. This reduces the amount of reflection calls that would otherwise be required when adding a
      * subscriber to the event bus.
      */
-    protected final Map<EventSubscriber, List<Listener<?>>> subscriberListenerCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Subscriber, List<Listener<?>>> subscriberListenerCache;
 
     /**
      * Map containing all event classes and the currently subscribed listeners.
      */
-    protected final Map<Class<?>, CopyOnWriteArrayList<Listener<?>>> activeListeners = new ConcurrentHashMap<>();
+    private volatile Event2ListenersMap activeListeners;
+    private final Object activeListenersWriteLock;
 
-    /**
-     * The name of this bus.
-     */
+    // Settings specified through EventBusBuilder
     protected final String name;
+    protected final boolean parentDiscovery;
+    protected final List<ListenerDiscoveryStrategy> discoveryStrategies;
+    protected final EventDispatcher eventDispatcher;
+    protected final ListenerListFactory listenerListFactory;
 
-    /**
-     * Whether to search superclasses of an instance for Listener fields. Due to the caching functionality provided by
-     * {@link #subscriberListenerCache}, modifying this field outside the constructor can result in inconsistent
-     * behavior when adding a {@link EventSubscriber} to the bus. It is therefore recommended that subclasses of this
-     * {@link EventBus} implementation set the desired value of this flag in their constructor, prior to when any
-     * {@link EventSubscriber}s would be added via any of the relevant {@code subscribe} methods.
-     */
-    protected boolean recursiveDiscovery;
-
-    /**
-     * Whether to post an event to all Listeners that target a supertype of the event.
-     */
-    protected boolean superListeners;
-
-    public EventManager(String name) {
-        this(name, false, false);
+    public EventManager(@NotNull String name) {
+        this(new EventBusBuilder<>().setName(name));
     }
 
-    EventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
-        this.name = name;
-        this.recursiveDiscovery = recursiveDiscovery;
-        this.superListeners = superListeners;
+    public EventManager(@NotNull EventBusBuilder<?> builder) {
+        Objects.requireNonNull(builder);
+
+        this.subscriberListenerCache = new ConcurrentHashMap<>();
+        this.activeListeners = new Event2ListenersMap();
+        this.activeListenersWriteLock = new Object();
+
+        // Copy settings from builder
+        this.name = builder.getName();
+        this.parentDiscovery = builder.isParentDiscovery();
+        this.eventDispatcher = builder.getExceptionHandler()
+            .map(EventDispatcher::withExceptionHandler)
+            .orElseGet(EventDispatcher::fastEventDispatcher);
+        this.discoveryStrategies = new ArrayList<>(builder.getDiscoveryStrategies());
+
+        final ListenerListFactory factory = builder.getListenerListFactory();
+
+        // Wrap the factory in ListenerGroup if superListeners is enabled
+        if (builder.isSuperListeners()) {
+            this.listenerListFactory = new ListenerListFactory() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public <T> @NotNull ListenerList<T> create(Class<T> cls) {
+                    ListenerGroup<T> group = new ListenerGroup<>(factory.create(cls));
+                    EventManager.this.activeListeners.forEach((activeTarget, activeGroup) -> {
+                        // Link target to inherited types
+                        if (activeTarget.isAssignableFrom(cls)) {
+                            group.addChild((ListenerGroup<? super T>) activeGroup);
+                        }
+                        // Link inheriting types to target
+                        if (cls.isAssignableFrom(activeTarget)) {
+                            ((ListenerGroup<? extends T>) activeGroup).addChild(group);
+                        }
+                    });
+                    return group;
+                }
+            };
+        } else {
+            this.listenerListFactory = factory;
+        }
     }
 
     @Override
-    public String name() {
+    public @NotNull String name() {
         return this.name;
     }
 
     @Override
-    public void subscribe(EventSubscriber subscriber) {
+    public void subscribe(@NotNull Subscriber subscriber) {
         this.subscriberListenerCache.computeIfAbsent(subscriber, this::getListeners).forEach(this::subscribe);
     }
 
     @Override
-    public void subscribe(Listener<?> listener) {
-        List<Listener<?>> listeners = this.activeListeners.computeIfAbsent(listener.getTarget(), target -> new CopyOnWriteArrayList<>());
-
-        if (listeners.contains(listener)) {
-            return;
-        }
-
-        int index = 0;
-        for (; index < listeners.size(); index++) {
-            if (listener.getPriority() > listeners.get(index).getPriority()) {
-                break;
-            }
-        }
-
-        listeners.add(index, listener);
+    public <T> void subscribe(@NotNull Listener<T> listener) {
+        this.getOrCreateListenerList(listener.getTarget()).add(listener);
     }
 
     @Override
-    public void unsubscribe(EventSubscriber subscriber) {
+    public void unsubscribe(@NotNull Subscriber subscriber) {
         List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
-        if (subscriberListeners == null)
-            return;
-
-        subscriberListeners.forEach(this::unsubscribe);
-    }
-
-    @Override
-    public void unsubscribe(Listener<?> listener) {
-        List<Listener<?>> eventListeners = this.activeListeners.get(listener.getTarget());
-        if (eventListeners == null)
-            return;
-
-        eventListeners.remove(listener);
-        if (eventListeners.isEmpty()) {
-            this.activeListeners.remove(listener.getTarget());
+        if (subscriberListeners != null) {
+            subscriberListeners.forEach(this::unsubscribe);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void post(Object event) {
-        if (this.superListeners) {
-            // Iterate through all active listeners. If the event is assignable to the target, post as the target type.
-            this.activeListeners.forEach((target, listeners) -> {
-                if (target.isAssignableFrom(event.getClass())) {
-                    listeners.forEach(listener -> ((Listener<Object>) listener).accept(event));
-                }
-            });
-        } else {
-            CopyOnWriteArrayList<Listener<?>> listeners = this.activeListeners.get(event.getClass());
-            if (listeners != null) {
-                listeners.forEach(listener -> ((Listener<Object>) listener).accept(event));
-            }
+    public <T> void unsubscribe(@NotNull Listener<T> listener) {
+        ListenerList<T> list = (ListenerList<T>) this.activeListeners.get(listener.getTarget());
+        if (list != null) {
+            list.remove(listener);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> void post(@NotNull T event) {
+        this.getOrCreateListenerList((Class<T>) event.getClass()).post(event, this.eventDispatcher);
     }
 
     @Override
@@ -138,52 +133,79 @@ public class EventManager implements EventBus {
         return "EventManager{name='" + this.name + "'}";
     }
 
-    protected List<Listener<?>> getListeners(EventSubscriber subscriber) {
-        Class<?> cls = subscriber.getClass();
-        Stream<Field> fields = Stream.empty();
-        do {
-            fields = Stream.concat(fields, getListenersFields(cls));
-            cls = cls.getSuperclass();
-        } while (this.recursiveDiscovery && cls != null);
+    private List<Listener<?>> getListeners(Subscriber subscriber) {
+        // TODO: Per-class candidate caching
 
         return Collections.unmodifiableList(
-            fields.map(field -> asListener(subscriber, field)).collect(Collectors.toList())
+            // Get all super-classes of 'subscriber' that inherit Subscriber (if 'parentDiscovery' is enabled)
+            this.getSubscriberHierarchy(subscriber.getClass())
+                // Apply each discovery strategy to each class, and use flatMap to create a stream of candidates
+                .flatMap(cls -> this.discoveryStrategies.stream().flatMap(strategy -> strategy.findAll(cls)))
+                // Bind the subscriber instance to each candidate to its Listener instances
+                .flatMap(candidate -> candidate.bind(subscriber))
+                .collect(Collectors.toList())
         );
     }
 
-    protected static Stream<Field> getListenersFields(Class<?> cls) {
-        return Arrays.stream(cls.getDeclaredFields()).filter(EventManager::isListenerField);
-    }
-
-    protected static boolean isListenerField(Field field) {
-        return field.isAnnotationPresent(Subscribe.class)
-            && field.getType().equals(Listener.class)
-            && !Modifier.isStatic(field.getModifiers());
+    private Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
+        if (!this.parentDiscovery) {
+            return Stream.of(cls);
+        }
+        // noinspection unchecked
+        return Util.flattenHierarchy(cls).stream()
+            .filter(Subscriber.class::isAssignableFrom)
+            .map(c -> (Class<? extends Subscriber>) c);
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> Listener<T> asListener(EventSubscriber subscriber, Field field) {
-        try {
-            if (!(field.getGenericType() instanceof ParameterizedType)) {
-                throw new IllegalArgumentException("Listener fields must have a specified type parameter!");
+    private <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
+        // This method of initialization results in much faster dispatch than 'computeIfAbsent'
+        // It also guarantees that only one thread can call 'createListenerList' at a time
+        final ListenerList<T> existing = (ListenerList<T>) this.activeListeners.get(target);
+        if (existing != null) {
+            return existing;
+        }
+        synchronized (this.activeListenersWriteLock) {
+            // Fetch the group again, as it could've been initialized since the lock was released.
+            final ListenerList<T> group = (ListenerList<T>) this.activeListeners.get(target);
+            if (group == null) {
+                // Validate the event type, throwing an IllegalArgumentException if it is invalid
+                Util.catchAndRethrow(() -> Events.validateEventType(target), IllegalArgumentException::new);
+
+                ListenerList<T> list = this.listenerListFactory.create(target);
+
+                // If insertion of a new key will require a rehash, then clone the map and reassign the field.
+                if (this.activeListeners.needsRehash()) {
+                    final Event2ListenersMap newMap = this.activeListeners.clone();
+                    newMap.put(target, list);
+                    this.activeListeners = newMap;
+                } else {
+                    this.activeListeners.put(target, list);
+                }
+
+                return list;
+            } else {
+                return group;
             }
-
-            boolean accessible = field.isAccessible();
-            field.setAccessible(true);
-            Listener<T> listener = (Listener<T>) field.get(subscriber);
-            field.setAccessible(accessible);
-
-            // Resolve the actual target type from the field type parameter, and update the Listener target
-            Class<T> target = (Class<T>) TypeResolver.resolveRawArgument(field.getGenericType(), Listener.class);
-            listener.setTarget(target);
-
-            return listener;
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access Listener field");
         }
     }
 
-    public static EventBusBuilder<EventBus> builder() {
+    public static @NotNull EventBusBuilder<EventBus> builder() {
         return new EventBusBuilder<>();
+    }
+
+    private static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerList<?>> {
+
+        /**
+         * @return {@code true} if the next insertion of a new key will require a rehash.
+         */
+        public boolean needsRehash() {
+            return this.size >= this.maxFill;
+        }
+
+        @Override
+        public Event2ListenersMap clone() {
+            return (Event2ListenersMap) super.clone();
+        }
     }
 }

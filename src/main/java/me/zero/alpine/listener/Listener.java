@@ -2,20 +2,57 @@ package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.EventPriority;
+import me.zero.alpine.event.Events;
+import me.zero.alpine.exception.EventTypeException;
+import me.zero.alpine.exception.ListenerTargetException;
+import me.zero.alpine.util.Util;
 import net.jodah.typetools.TypeResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * A wrapper body that is used to define new event listeners. When using a method reference for the callback function,
- * specifying the target event class explicitly may be required.
+ * A Listener is an event callback wrapper that links event callbacks to their respective target types.
+ * <p>
+ * When using a method reference for the callback function, explicitly specifying the target event class may be
+ * required. Consider the following example:
+ * <pre>
+ * public class EventHandler implements Subscriber {
+ *   public EventHandler() {
+ *     // Incorrect Usage
+ *     App.EVENT_BUS.subscribe(new Listener&lt;String&gt;(this::doSomething));
+ *   }
+ *
+ *   public void doSomething(Object object) { ... }
+ * }
+ * </pre>
+ * Despite the explicit type parameter, the Listener target will be resolved as Object. (This is not an issue when the
+ * Listener is a field, as the type parameter can be extracted from the generic signature). The solution to this is to
+ * explicitly specify the target via a constructor parameter:
+ * <pre>
+ * public class EventHandler implements Subscriber {
+ *   public EventHandler() {
+ *     // Correct Usage
+ *     App.EVENT_BUS.subscribe(new Listener&lt;&gt;(String.class, this::doSomething));
+ *   }
+ *
+ *   public void doSomething(Object object) { ... }
+ * }
+ * </pre>
  *
  * @param <T> Target event type
  * @author Brady
- * @since 1/21/2017
+ * @since 1.2
  */
-public final class Listener<T> implements Consumer<T> {
+/*
+ Even though IntelliJ warns about placing @NotNull on a type parameter here, it is actually sufficient for Kotlin to
+ deduce a non-null type for all usages of T.
+ */
+public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Listener<?>> {
 
     private static final Predicate<?>[] EMPTY_FILTERS = new Predicate[0];
 
@@ -30,49 +67,40 @@ public final class Listener<T> implements Consumer<T> {
     private final Consumer<T> callback;
 
     /**
-     * The filters that events being posted to this {@link Listener} are tested against.
-     */
-    private final Predicate<? super T>[] filters;
-
-    /**
      * Priority of this {@link Listener}.
      *
      * @see EventPriority
      */
     private final int priority;
 
-    @SuppressWarnings("unchecked")
-    public Listener(Consumer<T> callback) {
-        this(null, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+    public Listener(@NotNull Consumer<T> callback) {
+        this(null, callback, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
-    public Listener(Consumer<T> callback, int priority) {
-        this(null, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+    public Listener(@NotNull Consumer<T> callback, int priority) {
+        this(null, callback, priority, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
-    public Listener(Class<T> target, Consumer<T> callback) {
-        this(target, callback, (Predicate<? super T>[]) EMPTY_FILTERS);
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback) {
+        this(target, callback, emptyFilters());
     }
 
-    @SuppressWarnings("unchecked")
-    public Listener(Class<T> target, Consumer<T> callback, int priority) {
-        this(target, callback, priority, (Predicate<? super T>[]) EMPTY_FILTERS);
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority) {
+        this(target, callback, priority, emptyFilters());
     }
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, Predicate<? super T>... filters) {
+    public Listener(@NotNull Consumer<T> callback, @NotNull Predicate<? super T>... filters) {
         this(null, callback, filters);
     }
 
     @SafeVarargs
-    public Listener(Consumer<T> callback, int priority, Predicate<? super T>... filters) {
+    public Listener(@NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
         this(null, callback, priority, filters);
     }
 
     @SafeVarargs
-    public Listener(Class<T> target, Consumer<T> callback, Predicate<? super T>... filters) {
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, @NotNull Predicate<? super T>... filters) {
         this(target, callback, EventPriority.DEFAULT, filters);
     }
 
@@ -83,16 +111,18 @@ public final class Listener<T> implements Consumer<T> {
      * @param callback The event callback function.
      * @param priority The priority value. See {@link EventPriority}.
      * @param filters  Checks used to validate the event object before the {@code callback} is invoked.
+     * @throws EventTypeException If the event target isn't a {@link Events#validateEventType(Type) valid event type}.
+     *                            This could happen unexpectedly if the target isn't specified, and the TypeResolver
+     *                            resolves a generic superclass instead of the intended target. In this case, the event
+     *                            target should be explicitly specified.
      */
     @SafeVarargs
-    @SuppressWarnings("unchecked")
-    public Listener(Class<T> target, Consumer<T> callback, int priority, Predicate<? super T>... filters) {
-        this.callback = callback;
+    public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
+        this.callback = Util.predicated(callback, filters);
         this.priority = priority;
-        this.filters = filters;
-        this.target = target == null
-            ? (Class<T>) TypeResolver.resolveRawArgument(Consumer.class, callback.getClass())
-            : target;
+        this.target = Events.validateEventType(
+            target == null ? TypeResolver.resolveRawArgument(Consumer.class, callback.getClass()) : target
+        );
     }
 
     /**
@@ -101,11 +131,13 @@ public final class Listener<T> implements Consumer<T> {
      * type when using a method reference to a method whose parameter isn't the exact event type.
      *
      * @param target The new target
-     * @throws IllegalArgumentException if the existing target isn't assignable from the new target
+     * @throws EventTypeException      If the new target isn't a valid event type
+     * @throws ListenerTargetException If the existing target isn't assignable from the new target
      */
-    public void setTarget(Class<T> target) {
+    public void setTarget(@NotNull Class<T> target) {
+        Events.validateEventType(target);
         if (!this.target.isAssignableFrom(target)) {
-            throw new IllegalArgumentException("Current target type must be assignable from new target type");
+            throw new ListenerTargetException("Current target type must be assignable from new target type");
         }
         this.target = target;
     }
@@ -115,7 +147,7 @@ public final class Listener<T> implements Consumer<T> {
      *
      * @return The target event type
      */
-    public Class<T> getTarget() {
+    public @NotNull Class<T> getTarget() {
         return this.target;
     }
 
@@ -137,11 +169,17 @@ public final class Listener<T> implements Consumer<T> {
      */
     @Override
     public void accept(T event) {
-        for (Predicate<? super T> filter : this.filters) {
-            if (!filter.test(event)) {
-                return;
-            }
-        }
         this.callback.accept(event);
+    }
+
+    @Override
+    public int compareTo(@NotNull Listener<?> o) {
+        // Listeners with higher priorities should come first, so negate the compare result
+        return -Integer.compare(this.getPriority(), Objects.requireNonNull(o).getPriority());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Predicate<? super T>[] emptyFilters() {
+        return (Predicate<? super T>[]) EMPTY_FILTERS;
     }
 }

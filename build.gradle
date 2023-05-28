@@ -1,24 +1,93 @@
-group 'me.zero'
-version '2.2.1'
-
-apply plugin: 'java'
-
-sourceCompatibility = targetCompatibility = 1.8
-compileJava {
-    sourceCompatibility = targetCompatibility = 1.8
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'jacoco'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+group 'com.github.ZeroMemes'
+version '3.0.0-SNAPSHOT'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    }
 }
 
-build.dependsOn sourcesJar
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
-repositories {
-    mavenCentral()
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+check.dependsOn jacocoTestReport
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
 
 dependencies {
     implementation 'net.jodah:typetools:0.6.3'
+    api 'it.unimi.dsi:fastutil:8.5.12'
+    implementation 'org.jetbrains:annotations:24.0.1'
+
+    testImplementation 'org.mockito:mockito-core:4.11.0' // 5.x requires Java 11+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Alpine'
+                description = 'A lightweight, pub/sub event system for Java 8+'
+                url = 'https://github.com/ZeroMemes/Alpine'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://github.com/ZeroMemes/Alpine/blob/master/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ZeroMemes'
+                        name = 'Brady Hahn'
+                        email = 'zeromemesdev@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/ZeroMemes/Alpine.git'
+                    url = 'https://github.com/ZeroMemes/Alpine'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            if (System.env.MAVEN_DIR) {
+                url = 'file://' + System.env.MAVEN_DIR
+            } else {
+                url = layout.buildDirectory.dir('repo')
+            }
+        }
+    }
 }

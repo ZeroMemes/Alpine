@@ -10,7 +10,7 @@ import me.zero.alpine.listener.Listener;
  * with a lower priority value.
  *
  * @author Brady
- * @since 1/21/2017
+ * @since 1.2
  */
 public interface EventPriority {
 

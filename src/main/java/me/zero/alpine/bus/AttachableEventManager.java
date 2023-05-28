@@ -1,43 +1,45 @@
 package me.zero.alpine.bus;
 
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation of {@link EventManager} that is an {@link AttachableEventBus}.
  *
  * @author Brady
- * @since 9/15/2018
+ * @since 1.8
  */
 public class AttachableEventManager extends EventManager implements AttachableEventBus {
 
     /**
      * List of attached event buses.
      */
-    protected final List<EventBus> attached = new CopyOnWriteArrayList<>();
+    protected final CopyOnWriteArrayList<EventBus> attached = new CopyOnWriteArrayList<>();
 
-    public AttachableEventManager(String name) {
+    public AttachableEventManager(@NotNull String name) {
         super(name);
     }
 
-    AttachableEventManager(String name, boolean recursiveDiscovery, boolean superListeners) {
-        super(name, recursiveDiscovery, superListeners);
+    AttachableEventManager(@NotNull EventBusBuilder<?> builder) {
+        super(builder);
     }
 
     @Override
-    public void post(Object event) {
+    public <T> void post(@NotNull T event) {
         super.post(event);
-        this.attached.forEach(bus -> bus.post(event));
+        for (EventBus bus : this.attached) {
+            bus.post(event);
+        }
     }
 
     @Override
-    public void attach(EventBus bus) {
-        if (!this.attached.contains(bus))
-            this.attached.add(bus);
+    public boolean attach(@NotNull EventBus bus) {
+        return this.attached.addIfAbsent(bus);
     }
 
     @Override
-    public void detach(EventBus bus) {
-        this.attached.remove(bus);
+    public boolean detach(@NotNull EventBus bus) {
+        return this.attached.remove(bus);
     }
 }

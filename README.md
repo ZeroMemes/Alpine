@@ -1,5 +1,21 @@
+<div align="center">
+
 # Alpine
 A lightweight event system for Java 8+
+
+[![Releases][releases-badge]](https://github.com/ZeroMemes/Alpine/releases)
+[![License][license-badge]](/LICENSE)
+[![Status][status-badge]](https://github.com/ZeroMemes/Alpine/actions/workflows/gradle.yml)
+[![Coverage][coverage-badge]](https://app.codecov.io/gh/ZeroMemes/Alpine)
+[![Code Size][codesize-badge]](/)
+
+</div>
+
+[releases-badge]: https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square
+[license-badge]: https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square
+[status-badge]: https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle.yml?style=flat-square
+[coverage-badge]: https://img.shields.io/codecov/c/github/ZeroMemes/Alpine?style=flat-square
+[codesize-badge]: https://img.shields.io/github/languages/code-size/ZeroMemes/Alpine?style=flat-square
 
 # Tutorial
 For starters, we must create an EventBus to handle events and their respective listeners.
@@ -18,10 +34,10 @@ such as `setSuperListeners` can be seen in the documentation of [`EventBusBuilde
 
 Now to actually receive events that are posted to the event bus, we'll need to create a `Listener` object and supply its
 generic argument with the type of event we'd like to receive. One of the ways that this can be done by creating a
-`Listener` member variable in a class implementing `EventSubscriber`, and annotating it with `@Subscribe`. Let's do that
+`Listener` member variable in a class implementing `Subscriber`, and annotating it with `@Subscribe`. Let's do that
 in our existing class:
 ```java
-public class MyApplication implements EventSubscriber {
+public class MyApplication implements Subscriber {
 
     public static final EventBus EVENT_BUS = ...;
 
@@ -31,10 +47,10 @@ public class MyApplication implements EventSubscriber {
     });
 }
 ```
-In order to use our `Listener`, we need to create a new instance of the `EventSubscriber` implementation and subscribe
+In order to use our `Listener`, we need to create a new instance of the `Subscriber` implementation and subscribe
 it to the event bus.
 ```java
-public class MyApplication implements EventSubscriber {
+public class MyApplication implements Subscriber {
 
     public static final EventBus EVENT_BUS = ...;
 
@@ -49,7 +65,7 @@ public class MyApplication implements EventSubscriber {
     });
 }
 ```
-An alternative to creating an `EventSubscriber` implementation and using annotated `Listener` fields to receive events
+An alternative to creating a `Subscriber` implementation and using annotated `Listener` fields to receive events
 is creating an independent `Listener` instance and subscribing it directly:
 ```java
 public class MyApplication {
@@ -129,4 +145,4 @@ public class MyApplication {
     }
 }
 ```
-The complete example class can be found [here](src/test/java/MyApplication.java).
+The complete example class can be found in [Java](example/src/main/java/JavaApplication.java) and [Kotlin](example/src/main/kotlin/KotlinApplication.kt).
