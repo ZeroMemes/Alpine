@@ -25,6 +25,9 @@ java {
 }
 
 jar {
+    into('META-INF') {
+        from 'LICENSE'
+    }
     manifest {
         attributes([
             'Automatic-Module-Name': 'me.zero.alpine'
