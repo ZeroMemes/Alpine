@@ -43,14 +43,6 @@ jar {
     }
 }
 
-jacocoTestReport {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-check.dependsOn jacocoTestReport
-
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true
@@ -81,6 +73,15 @@ compileTestJava {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+// Setup report for test coverage
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+check.dependsOn jacocoTestReport
 
 publishing {
     publications {
