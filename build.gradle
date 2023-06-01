@@ -4,6 +4,14 @@ plugins {
     id 'jacoco'
 }
 
+ext {
+    typetoolsVersion   = '0.6.3'
+    fastutilVersion    = '8.5.12'
+    annotationsVersion = '24.0.1'
+    mockitoVersion     = '4.11.0' // 5.x requires Java 11+
+    junitVersion       = '5.9.3'
+}
+
 group 'com.github.ZeroMemes'
 version '3.0.0-SNAPSHOT'
 
@@ -49,14 +57,14 @@ tasks.withType(AbstractArchiveTask).configureEach {
 }
 
 dependencies {
-    implementation 'net.jodah:typetools:0.6.3'
-    api 'it.unimi.dsi:fastutil:8.5.12'
-    implementation 'org.jetbrains:annotations:24.0.1'
+    implementation "net.jodah:typetools:$typetoolsVersion"
+    api "it.unimi.dsi:fastutil:$fastutilVersion"
+    implementation "org.jetbrains:annotations:$annotationsVersion"
 
-    testImplementation 'org.mockito:mockito-core:4.11.0' // 5.x requires Java 11+
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
 test {
