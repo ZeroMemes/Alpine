@@ -47,6 +47,7 @@ public final class Events {
      * with a descriptive error message.
      *
      * @param type An event class
+     * @param <T> The class type
      * @return The validated event class
      * @throws EventTypeException If the class is invalid
      * @throws NullPointerException If the class is {@code null}
