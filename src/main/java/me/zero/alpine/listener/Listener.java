@@ -115,14 +115,21 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
      *                            This could happen unexpectedly if the target isn't specified, and the TypeResolver
      *                            resolves a generic superclass instead of the intended target. In this case, the event
      *                            target should be explicitly specified.
+     * @throws IllegalStateException If the event target can't be automatically resolved from the callback
      */
     @SafeVarargs
     public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
         this.callback = Util.predicated(callback, filters);
         this.priority = priority;
-        this.target = Events.validateEventType(
-            target == null ? TypeResolver.resolveRawArgument(Consumer.class, callback.getClass()) : target
-        );
+        if (target != null) {
+            this.target = target;
+        } else {
+            final Class<?> resolved = TypeResolver.resolveRawArgument(Consumer.class, callback.getClass());
+            if (resolved == TypeResolver.Unknown.class) {
+                throw new IllegalStateException("Unable to resolve target type from callback");
+            }
+            this.target = (Class<T>) resolved;
+        }
     }
 
     /**

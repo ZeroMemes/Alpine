@@ -18,9 +18,7 @@ public final class Events {
 
     /**
      * Validates the specified type as a valid event type. In order for a type to be considered valid, it must be a
-     * {@link Class} that has no type parameters. This does not include raw types, which are still considered invalid.
-     * If the type is valid, it is returned from this method as a {@link Class}; otherwise, an
-     * {@link EventTypeException} is thrown with a descriptive error message.
+     * {@link Class} and pass the checks imposed by {@link #validateEventType(Class)}.
      *
      * @param type An event type
      * @return The validated event class
@@ -28,7 +26,7 @@ public final class Events {
      * @throws NullPointerException If the type is {@code null}
      * @since 3.0.0
      */
-    public static <T> Class<T> validateEventType(@NotNull Type type) {
+    public static Class<?> validateEventType(@NotNull Type type) {
         Objects.requireNonNull(type);
         if (type instanceof TypeVariable) {
             throw new EventTypeException("Listener target cannot be a type variable");
@@ -36,22 +34,36 @@ public final class Events {
         if (type instanceof ParameterizedType) {
             throw new EventTypeException("Listener target cannot be a generic type");
         }
-        if (!(type instanceof Class<?>)) {
+        if (!(type instanceof Class)) {
             throw new EventTypeException("Unable to resolve Listener target class (Unrecognized " + type.getClass() + ")");
         }
+        return validateEventType((Class<?>) type);
+    }
 
-        // noinspection unchecked
-        Class<T> target = (Class<T>) type;
+    /**
+     * Validates the specified class as a valid event type. In order for a type to be considered valid, it must be a
+     * {@link Class} that has no type parameters. This does not include raw types, which are still considered invalid.
+     * If the type is valid, it is returned back from this method; otherwise, an {@link EventTypeException} is thrown
+     * with a descriptive error message.
+     *
+     * @param type An event class
+     * @return The validated event class
+     * @throws EventTypeException If the class is invalid
+     * @throws NullPointerException If the class is {@code null}
+     * @since 3.0.0
+     */
+    public static <T> Class<T> validateEventType(@NotNull Class<T> type) {
+        Objects.requireNonNull(type);
         // Make sure that it doesn't have any type parameters that were omitted, avoiding the other checks.
-        if (target.getTypeParameters().length != 0) {
+        if (type.getTypeParameters().length != 0) {
             throw new EventTypeException("Listener target cannot be a generic type");
         }
-        if (target.isPrimitive()) {
+        if (type.isPrimitive()) {
             throw new EventTypeException("Listener target cannot be a primitive");
         }
-        if (target.isArray()) {
+        if (type.isArray()) {
             throw new EventTypeException("Listener target cannot be an array type");
         }
-        return target;
+        return type;
     }
 }

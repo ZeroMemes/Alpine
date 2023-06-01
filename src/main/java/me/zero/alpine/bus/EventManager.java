@@ -107,16 +107,15 @@ public class EventManager implements EventBus {
 
     @Override
     public void unsubscribe(@NotNull Subscriber subscriber) {
-        List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
+        final List<Listener<?>> subscriberListeners = this.subscriberListenerCache.get(subscriber);
         if (subscriberListeners != null) {
             subscriberListeners.forEach(this::unsubscribe);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> void unsubscribe(@NotNull Listener<T> listener) {
-        ListenerList<T> list = (ListenerList<T>) this.activeListeners.get(listener.getTarget());
+        final ListenerList<T> list = this.activeListeners.get(listener.getTarget());
         if (list != null) {
             list.remove(listener);
         }
@@ -147,45 +146,44 @@ public class EventManager implements EventBus {
         );
     }
 
+    @SuppressWarnings("unchecked")
     private Stream<Class<? extends Subscriber>> getSubscriberHierarchy(final Class<? extends Subscriber> cls) {
         if (!this.parentDiscovery) {
             return Stream.of(cls);
         }
-        // noinspection unchecked
         return Util.flattenHierarchy(cls).stream()
             .filter(Subscriber.class::isAssignableFrom)
             .map(c -> (Class<? extends Subscriber>) c);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
         // This method of initialization results in much faster dispatch than 'computeIfAbsent'
         // It also guarantees that only one thread can call 'createListenerList' at a time
-        final ListenerList<T> existing = (ListenerList<T>) this.activeListeners.get(target);
+        final ListenerList<T> existing = this.activeListeners.get(target);
         if (existing != null) {
             return existing;
         }
         synchronized (this.activeListenersWriteLock) {
-            // Fetch the group again, as it could've been initialized since the lock was released.
-            final ListenerList<T> group = (ListenerList<T>) this.activeListeners.get(target);
-            if (group == null) {
+            // Fetch the list again, as it could've been initialized since the lock was released.
+            final ListenerList<T> list = this.activeListeners.get(target);
+            if (list == null) {
                 // Validate the event type, throwing an IllegalArgumentException if it is invalid
                 Util.catchAndRethrow(() -> Events.validateEventType(target), IllegalArgumentException::new);
 
-                ListenerList<T> list = this.listenerListFactory.create(target);
+                final ListenerList<T> newList = this.listenerListFactory.create(target);
 
                 // If insertion of a new key will require a rehash, then clone the map and reassign the field.
                 if (this.activeListeners.needsRehash()) {
                     final Event2ListenersMap newMap = this.activeListeners.clone();
-                    newMap.put(target, list);
+                    newMap.put(target, newList);
                     this.activeListeners = newMap;
                 } else {
-                    this.activeListeners.put(target, list);
+                    this.activeListeners.put(target, newList);
                 }
 
-                return list;
+                return newList;
             } else {
-                return group;
+                return list;
             }
         }
     }
@@ -196,10 +194,15 @@ public class EventManager implements EventBus {
 
     private static final class Event2ListenersMap extends Reference2ObjectOpenHashMap<Class<?>, ListenerList<?>> {
 
+        @SuppressWarnings("unchecked")
+        private <T> ListenerList<T> get(final Class<T> target) {
+            return (ListenerList<T>) super.get(target);
+        }
+
         /**
          * @return {@code true} if the next insertion of a new key will require a rehash.
          */
-        public boolean needsRehash() {
+        private boolean needsRehash() {
             return this.size >= this.maxFill;
         }
 

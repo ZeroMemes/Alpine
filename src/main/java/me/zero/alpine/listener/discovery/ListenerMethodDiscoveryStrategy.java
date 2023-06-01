@@ -52,7 +52,7 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
         }
 
         // Validate the event type. If an exception is thrown, wrap it in ListenerDiscoveryException and rethrow it.
-        final Class<T> target = Util.catchAndRethrow(
+        final Class<T> target = (Class<T>) Util.catchAndRethrow(
             () -> Events.validateEventType(parameters[0]),
             cause -> new ListenerDiscoveryException("Couldn't validate event type", cause)
         );

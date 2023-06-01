@@ -51,7 +51,7 @@ enum ListenerFieldDiscoveryStrategy implements ListenerDiscoveryStrategy {
         final Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
 
         // Validate the event type. If an exception is thrown, wrap it in ListenerDiscoveryException and rethrow it.
-        final Class<T> target = Util.catchAndRethrow(
+        final Class<T> target = (Class<T>) Util.catchAndRethrow(
             () -> Events.validateEventType(type),
             cause -> new ListenerDiscoveryException("Couldn't validate event type", cause)
         );
