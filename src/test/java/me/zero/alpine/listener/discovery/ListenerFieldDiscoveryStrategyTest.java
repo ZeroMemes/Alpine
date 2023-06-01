@@ -5,8 +5,7 @@ import me.zero.alpine.exception.ListenerDiscoveryException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
 import me.zero.alpine.listener.Subscriber;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,21 +25,45 @@ public class ListenerFieldDiscoveryStrategyTest {
         strategy = ListenerFieldDiscoveryStrategy.INSTANCE;
     }
 
-    @Test
-    void testDiscovery() {
-        final EventHandler handler = new EventHandler();
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Nested
+    class DiscoverAndInvoke {
 
-        final List<ListenerCandidate<?>> candidates = strategy.findAll(EventHandler.class).collect(Collectors.toList());
-        assertEquals(1, candidates.size());
+        static EventHandler handler;
+        static ListenerCandidate<?> candidate;
+        static Listener<String> listener;
 
-        final List<Listener<String>> listeners = candidates.get(0).bind(handler).map(l -> (Listener<String>) l).collect(Collectors.toList());
-        assertEquals(1, listeners.size());
-        assertEquals(handler.subscribedListener, listeners.get(0));
+        @BeforeAll
+        static void setup() {
+            handler = new EventHandler();
+        }
+
+        @Test
+        @Order(1)
+        void validFieldIsDiscovered() {
+            final List<ListenerCandidate<?>> candidates = strategy.findAll(EventHandler.class).collect(Collectors.toList());
+            assertEquals(1, candidates.size());
+            candidate = candidates.get(0);
+        }
+
+        @Test
+        @Order(2)
+        void bindCandidateToInstance() {
+            final List<Listener<String>> listeners = candidate.bind(handler).map(l -> (Listener<String>) l).collect(Collectors.toList());
+            assertEquals(1, listeners.size());
+            listener = listeners.get(0);
+        }
+
+        @Test
+        @Order(3)
+        void listenerMatchesField() {
+            assertEquals(handler.subscribedListener, listener);
+        }
     }
 
     @Test
     @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
-    void testMissingParameter() {
+    void missingTypeParameterThrows() {
         // Absence of a type parameter is disallowed
         class Setup implements Subscriber {
             @Subscribe
@@ -52,7 +75,7 @@ public class ListenerFieldDiscoveryStrategyTest {
     }
 
     @Test
-    void testNullField() {
+    void nullListenerFieldThrows() {
         // Listener must be initialized to bind
         class Setup implements Subscriber {
             @Subscribe
@@ -71,7 +94,7 @@ public class ListenerFieldDiscoveryStrategyTest {
     }
 
     /**
-     * Test class for {@link #testDiscovery()}
+     * Test class for {@link DiscoverAndInvoke}
      */
     static class EventHandler implements Subscriber {
 

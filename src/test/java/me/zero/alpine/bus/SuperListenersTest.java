@@ -23,18 +23,7 @@ public class SuperListenersTest {
     }
 
     @Test
-    void testNone() {
-        final Listener<Object> listener = mock(Listener.class);
-        when(listener.getTarget()).thenReturn(Object.class);
-        bus.subscribe(listener);
-
-        final Object event = new Object();
-        bus.post(event);
-        verify(listener, times(1)).accept(event);
-    }
-
-    @Test
-    void testSingle() {
+    void superListenerReceivesEvent() {
         final Listener<Object> listener = mock(Listener.class);
         when(listener.getTarget()).thenReturn(Object.class);
         bus.subscribe(listener);
@@ -49,7 +38,7 @@ public class SuperListenersTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    void testDiamond() {
+    void diamondRootReceivesEventOnce() {
         final Listener listener = mock(Listener.class);
         when(listener.getTarget()).thenReturn(Diamond.D.class);
         bus.subscribe(listener);
@@ -62,24 +51,9 @@ public class SuperListenersTest {
         verify(listener, times(1)).accept(event);
     }
 
-    static class Diamond {
-        //     A
-        //    / \
-        //   /   \
-        //  B     C
-        //   \   /
-        //    \ /
-        //     D
-        static class A implements B, C {}
-        // Local interfaces not supported until Java 16
-        interface B extends D {}
-        interface C extends D {}
-        interface D {}
-    }
-
     @Test
     @SuppressWarnings("rawtypes")
-    void testAddSuper() {
+    void addSuperListenerAfterBaseReceivesEvent() {
         final Listener listenerA = mock(Listener.class);
         when(listenerA.getTarget()).thenReturn(Diamond.A.class);
 
@@ -94,5 +68,19 @@ public class SuperListenersTest {
         bus.post(event);
         verify(listenerA, times(1)).accept(event);
         verify(listenerB, times(1)).accept(event);
+    }
+
+    static class Diamond {
+        //     A
+        //    / \
+        //   /   \
+        //  B     C
+        //   \   /
+        //    \ /
+        //     D
+        static class A implements B, C {}
+        interface B extends D {}
+        interface C extends D {}
+        interface D {}
     }
 }

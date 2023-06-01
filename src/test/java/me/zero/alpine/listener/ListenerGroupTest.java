@@ -17,7 +17,7 @@ public class ListenerGroupTest {
     @SuppressWarnings("unchecked")
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
-    void testDistributor(int numChildren) {
+    void distributorCallsChildren(int numChildren) {
         final ListenerGroup<Object> root = new ListenerGroup<>((ListenerList<Object>) mock(ListenerList.class));
 
         final ListenerList<Object>[] backingLists = new ListenerList[numChildren];

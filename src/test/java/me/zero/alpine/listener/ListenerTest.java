@@ -12,7 +12,7 @@ public class ListenerTest {
 
     @Test
     @SuppressWarnings("EqualsWithItself")
-    void testCompare() {
+    void compareTo() {
         final Listener<Object> low = new Listener<>(e -> {}, EventPriority.LOW);
         final Listener<Object> mid = new Listener<>(e -> {}, EventPriority.DEFAULT);
         final Listener<Object> high = new Listener<>(e -> {}, EventPriority.HIGH);

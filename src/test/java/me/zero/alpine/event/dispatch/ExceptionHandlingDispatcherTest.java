@@ -37,7 +37,7 @@ public class ExceptionHandlingDispatcherTest {
     }
 
     @Test
-    void testPropagateThrow() {
+    void propagatingHandlerThrows() {
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
             // Dispatch the throwing listener
             propagateDispatcher.dispatch(new Object(), Util.singletonIterator(throwingListener));
@@ -48,7 +48,7 @@ public class ExceptionHandlingDispatcherTest {
     }
 
     @Test
-    void testIgnoreThrow() {
+    void ignoringHandlerDoesNotThrow() {
         assertDoesNotThrow(() -> {
             // Dispatch the throwing listener
             ignoreDispatcher.dispatch(new Object(), Util.singletonIterator(throwingListener));
@@ -56,7 +56,7 @@ public class ExceptionHandlingDispatcherTest {
     }
 
     @Nested
-    class CallOrder {
+    class DispatchCancel {
 
         Listener<Object> before, throwing, after;
         Listener<Object>[] listeners;
@@ -76,14 +76,14 @@ public class ExceptionHandlingDispatcherTest {
         }
 
         @Test
-        void testPropagate() {
+        void propagatingHandlerCancels() {
             try {
                 propagateDispatcher.dispatch(new Object(), Util.arrayIterator(listeners));
             } catch (Exception ignored) {}
         }
 
         @Test
-        void testIgnore() {
+        void ignoringHandlerCancels() {
             ignoreDispatcher.dispatch(new Object(), Util.arrayIterator(listeners));
         }
 

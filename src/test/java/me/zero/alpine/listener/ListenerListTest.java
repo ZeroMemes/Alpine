@@ -21,7 +21,7 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
     T create();
 
     @Test
-    default void testPost() {
+    default void postCallsListener() {
         EventDispatcher dispatcher = mock(EventDispatcher.class);
         doAnswer(ctx -> {
             Iterator<Listener<Object>> it = ctx.getArgument(1);
@@ -41,7 +41,7 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
     }
 
     @Test
-    default void testAdd() {
+    default void addReturnsUpdated() {
         T list = create();
         Listener<Object> listener = mock(Listener.class);
 
@@ -50,7 +50,7 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
     }
 
     @Test
-    default void testRemove() {
+    default void removeReturnsUpdated() {
         T list = create();
         Listener<Object> listener = mock(Listener.class);
 

@@ -67,8 +67,19 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
+// Use Java 17 for running tests (Latest LTS version)
+// This allows @BeforeAll usage in @Nested test classes (Added in 16)
 test {
     useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+compileTestJava {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 publishing {
