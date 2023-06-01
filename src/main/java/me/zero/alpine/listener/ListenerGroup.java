@@ -5,20 +5,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
  * @author Brady
  * @since 3.0.0
  */
-public class ListenerGroup<T> implements ListenerList<T> {
+public final class ListenerGroup<T> implements ListenerList<T> {
 
     private final ListenerList<T> backing;
     private final List<ListenerGroup<? super T>> children;
     private BiConsumer<T, EventDispatcher> distributor;
 
-    public ListenerGroup(ListenerList<T> backing) {
-        this.backing = backing;
+    public ListenerGroup(@NotNull ListenerList<T> backing) {
+        this.backing = Objects.requireNonNull(backing);
         this.children = new ArrayList<>();
         this.distributor = this.createDistributor();
     }
@@ -38,7 +39,7 @@ public class ListenerGroup<T> implements ListenerList<T> {
         return this.backing.remove(listener);
     }
 
-    protected void post0(T event, EventDispatcher dispatcher) {
+    private void post0(T event, EventDispatcher dispatcher) {
         this.backing.post(event, dispatcher);
     }
 
