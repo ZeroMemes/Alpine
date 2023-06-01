@@ -76,4 +76,23 @@ public class SuperListenersTest {
         interface C extends D {}
         interface D {}
     }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    void testAddSuper() {
+        final Listener listenerA = mock(Listener.class);
+        when(listenerA.getTarget()).thenReturn(Diamond.A.class);
+
+        final Listener listenerB = mock(Listener.class);
+        when(listenerB.getTarget()).thenReturn(Diamond.B.class);
+
+        // subscribe in an order that requires a link to be created from A->B
+        bus.subscribe(listenerA);
+        bus.subscribe(listenerB);
+
+        final Diamond.A event = new Diamond.A();
+        bus.post(event);
+        verify(listenerA, times(1)).accept(event);
+        verify(listenerB, times(1)).accept(event);
+    }
 }
