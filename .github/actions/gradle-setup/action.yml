@@ -1,5 +1,5 @@
 name: 'Setup Environment'
-description: ''
+description: 'Sets up the required JDKs and validates the Gradle wrapper'
 runs:
   using: 'composite'
   steps:
