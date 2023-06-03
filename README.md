@@ -5,7 +5,7 @@ A lightweight event system for Java 8+
 
 [![Releases][releases-badge]](https://github.com/ZeroMemes/Alpine/releases)
 [![License][license-badge]](/LICENSE)
-[![Status][status-badge]](https://github.com/ZeroMemes/Alpine/actions/workflows/gradle.yml)
+[![Status][status-badge]](https://github.com/ZeroMemes/Alpine/actions/workflows/gradle-build.yml)
 [![Coverage][coverage-badge]](https://app.codecov.io/gh/ZeroMemes/Alpine)
 [![Code Size][codesize-badge]](/)
 
