@@ -13,7 +13,9 @@ A lightweight event system for Java 8+
 
 [releases-badge]: https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square
 [license-badge]: https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square
-[status-badge]: https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle.yml?style=flat-square
+
+[status-badge]: https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle-build.yml?style=flat-square
+
 [coverage-badge]: https://img.shields.io/codecov/c/github/ZeroMemes/Alpine?style=flat-square
 [codesize-badge]: https://img.shields.io/github/languages/code-size/ZeroMemes/Alpine?style=flat-square
 
