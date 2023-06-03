@@ -18,8 +18,8 @@ public interface ListenerListFactory {
      * caller.
      *
      * @param eventType The event class
+     * @param <T>       The event type
      * @return A new listener list
-     * @param <T> The event type
      */
     <T> @NotNull ListenerList<T> create(Class<T> eventType);
 

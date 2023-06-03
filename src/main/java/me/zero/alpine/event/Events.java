@@ -22,7 +22,7 @@ public final class Events {
      *
      * @param type An event type
      * @return The validated event class
-     * @throws EventTypeException If the type is invalid
+     * @throws EventTypeException   If the type is invalid
      * @throws NullPointerException If the type is {@code null}
      * @since 3.0.0
      */
@@ -47,9 +47,9 @@ public final class Events {
      * with a descriptive error message.
      *
      * @param type An event class
-     * @param <T> The class type
+     * @param <T>  The class type
      * @return The validated event class
-     * @throws EventTypeException If the class is invalid
+     * @throws EventTypeException   If the class is invalid
      * @throws NullPointerException If the class is {@code null}
      * @since 3.0.0
      */

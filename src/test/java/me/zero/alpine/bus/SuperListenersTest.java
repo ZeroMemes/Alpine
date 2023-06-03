@@ -79,8 +79,11 @@ public class SuperListenersTest {
         //    \ /
         //     D
         static class A implements B, C {}
+
         interface B extends D {}
+
         interface C extends D {}
+
         interface D {}
     }
 }

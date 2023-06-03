@@ -21,8 +21,8 @@ public interface ListenerDiscoveryStrategy {
      *
      * @param cls The class to search
      * @return A stream of candidates
-     * @since 3.0.0
      * @throws ListenerDiscoveryException If an error is detected in Listener definition
+     * @since 3.0.0
      */
     Stream<ListenerCandidate<?>> findAll(Class<? extends Subscriber> cls);
 

@@ -33,8 +33,8 @@ public interface ListenerCandidate<T> {
      * candidate implementation which only produces a single instance.
      *
      * @param function The bind function
+     * @param <T>      The event type
      * @return The created candidate
-     * @param <T> The event type
      * @since 3.0.0
      */
     static <T> @NotNull ListenerCandidate<T> single(@NotNull Function<Subscriber, Listener<T>> function) {

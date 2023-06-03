@@ -33,7 +33,7 @@ public class ExceptionHandlingDispatcherTest {
 
         // Create a Listener that always throws an exception
         thrownException = new RuntimeException();
-        throwingListener = new Listener<>(Object.class, e -> { throw thrownException; });
+        throwingListener = new Listener<>(Object.class, e -> {throw thrownException;});
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ExceptionHandlingDispatcherTest {
 
             doThrow(new RuntimeException()).when(throwing).accept(any());
 
-            listeners = new Listener[] { before, throwing, after };
+            listeners = new Listener[]{before, throwing, after};
             inOrder = inOrder(before, throwing, after);
         }
 
