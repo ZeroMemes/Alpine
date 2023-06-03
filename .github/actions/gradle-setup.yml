@@ -1,0 +1,15 @@
+name: 'Setup Environment'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout sources
+      uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: |
+          8
+          17
+        distribution: 'temurin'
+    - name: Validate Gradle wrapper
+      uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
