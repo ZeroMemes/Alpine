@@ -121,5 +121,13 @@ publishing {
                 url = layout.buildDirectory.dir('repo')
             }
         }
+        maven {
+            name = 'GitHubPackages'
+            url = 'https://maven.pkg.github.com/ZeroMemes/Alpine'
+            credentials {
+                username = System.getenv('GITHUB_ACTOR')
+                password = System.getenv('GITHUB_TOKEN')
+            }
+        }
     }
 }
