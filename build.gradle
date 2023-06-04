@@ -115,7 +115,8 @@ publishing {
 
     repositories {
         maven {
-            if (System.getenv('MAVEN_DIR') != null) {
+            name = 'FileSystem'
+            if (System.getenv('MAVEN_DIR')) {
                 url = 'file://' + System.getenv('MAVEN_DIR')
             } else {
                 url = layout.buildDirectory.dir('repo')
