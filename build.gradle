@@ -116,6 +116,7 @@ publishing {
             configureJavaPublication(it)
         }
         gpr(MavenPublication) {
+            groupId = 'com.github.zeromemes'
             artifactId = 'alpine' // GitHub Packages requires a lowercase artifact id
             configureJavaPublication(it)
         }
