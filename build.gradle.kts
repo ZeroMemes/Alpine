@@ -41,6 +41,7 @@ repositories {
     mavenCentral()
 }
 
+@Suppress("GradlePackageUpdate")
 dependencies {
     implementation("net.jodah:typetools:$typetoolsVersion")
     api("it.unimi.dsi:fastutil:$fastutilVersion")
