@@ -12,16 +12,44 @@ A lightweight event system for Java 8+
 </div>
 
 [releases-badge]: https://img.shields.io/github/v/release/ZeroMemes/Alpine?style=flat-square
+
 [license-badge]: https://img.shields.io/github/license/ZeroMemes/Alpine?style=flat-square
 
 [status-badge]: https://img.shields.io/github/actions/workflow/status/ZeroMemes/Alpine/gradle-build.yml?style=flat-square
 
 [coverage-badge]: https://img.shields.io/codecov/c/github/ZeroMemes/Alpine?style=flat-square
+
 [codesize-badge]: https://img.shields.io/github/languages/code-size/ZeroMemes/Alpine?style=flat-square
 
-# Tutorial
+## Setup
+
+The following setup assumes the usage of the [Impact Development Maven](https://impactdevelopment.github.io/maven) repo.
+Alternatively, the [GitHub package](https://github.com/ZeroMemes/Alpine/packages) may be used.
+
+### Gradle
+
+```gradle
+dependencies {
+    compile 'com.github.ZeroMemes:Alpine:3.0.0'
+}
+```
+
+### Maven
+
+```xml
+
+<dependency>
+    <groupId>com.github.ZeroMemes</groupId>
+    <artifactId>Alpine</artifactId>
+    <version>3.0.0</version>
+</dependency>
+```
+
+## Tutorial
+
 For starters, we must create an EventBus to handle events and their respective listeners.
 Alpine provides a default implementation of EventBus that is configurable through a builder, so we'll be using that:
+
 ```java
 public class MyApplication {
 
