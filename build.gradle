@@ -83,33 +83,41 @@ jacocoTestReport {
 }
 check.dependsOn jacocoTestReport
 
+ext.configureJavaPublication = { MavenPublication it ->
+    it.from components.java
+    it.pom {
+        name = 'Alpine'
+        description = 'A lightweight, pub/sub event system for Java 8+'
+        url = 'https://github.com/ZeroMemes/Alpine'
+        licenses {
+            license {
+                name = 'MIT'
+                url = 'https://github.com/ZeroMemes/Alpine/blob/master/LICENSE'
+                distribution = 'repo'
+            }
+        }
+        developers {
+            developer {
+                id = 'ZeroMemes'
+                name = 'Brady Hahn'
+                email = 'zeromemesdev@gmail.com'
+            }
+        }
+        scm {
+            connection = 'scm:git:https://github.com/ZeroMemes/Alpine.git'
+            url = 'https://github.com/ZeroMemes/Alpine'
+        }
+    }
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
-            from components.java
-            pom {
-                name = 'Alpine'
-                description = 'A lightweight, pub/sub event system for Java 8+'
-                url = 'https://github.com/ZeroMemes/Alpine'
-                licenses {
-                    license {
-                        name = 'MIT'
-                        url = 'https://github.com/ZeroMemes/Alpine/blob/master/LICENSE'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'ZeroMemes'
-                        name = 'Brady Hahn'
-                        email = 'zeromemesdev@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:https://github.com/ZeroMemes/Alpine.git'
-                    url = 'https://github.com/ZeroMemes/Alpine'
-                }
-            }
+            configureJavaPublication(it)
+        }
+        gpr(MavenPublication) {
+            artifactId = 'alpine' // GitHub Packages requires a lowercase artifact id
+            configureJavaPublication(it)
         }
     }
 
@@ -130,5 +138,18 @@ publishing {
                 password = System.getenv('GITHUB_TOKEN')
             }
         }
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    onlyIf {
+        repository == publishing.repositories.FileSystem && publication == publishing.publications.maven
+            || repository == publishing.repositories.GitHubPackages && publication == publishing.publications.gpr
+    }
+}
+
+tasks.withType(PublishToMavenLocal).configureEach {
+    onlyIf {
+        publication == publishing.publications.maven
     }
 }
