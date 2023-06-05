@@ -1,9 +1,12 @@
 package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventBusBuilder;
+import me.zero.alpine.bus.EventManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Used by {@link EventManager} to handle exceptions thrown by Listeners.
+ *
  * @author Brady
  * @since 3.0.0
  */

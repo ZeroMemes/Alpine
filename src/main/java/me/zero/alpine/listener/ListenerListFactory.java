@@ -1,11 +1,14 @@
 package me.zero.alpine.listener;
 
 import me.zero.alpine.bus.EventBusBuilder;
+import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.Events;
 import me.zero.alpine.listener.concurrent.CopyOnWriteListenerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Used by {@link EventManager} to create new {@link ListenerList} instances for each event type.
+ *
  * @author Brady
  * @since 3.0.0
  */

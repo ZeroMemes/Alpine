@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.discovery;
 
+import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.exception.ListenerDiscoveryException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.stream.Stream;
 
 /**
+ * Used by {@link EventManager} to discover listener candidates in {@link Subscriber} classes.
+ *
  * @author Brady
  * @since 3.0.0
  */
@@ -27,7 +30,8 @@ public interface ListenerDiscoveryStrategy {
     Stream<ListenerCandidate<?>> findAll(Class<? extends Subscriber> cls);
 
     /**
-     * @return The built-in discovery strategy for {@link Listener} fields annotated with {@link Subscribe}
+     * Returns the built-in discovery strategy for {@link Listener} fields annotated with {@link Subscribe}
+     *
      * @since 3.0.0
      */
     static @NotNull ListenerDiscoveryStrategy subscribeFields() {
@@ -35,7 +39,7 @@ public interface ListenerDiscoveryStrategy {
     }
 
     /**
-     * @return The built-in discovery strategy for event callback methods annotated with {@link Subscribe}
+     * Returns the built-in discovery strategy for event callback methods annotated with {@link Subscribe}
      * @since 3.0.0
      */
     static @NotNull ListenerDiscoveryStrategy subscribeMethods() {

@@ -16,7 +16,8 @@ import org.jetbrains.annotations.NotNull;
 public interface EventBus {
 
     /**
-     * @return The name of this event bus
+     * Returns the name of this event bus
+     *
      * @since 2.0.0
      */
     @NotNull String name();
@@ -39,8 +40,9 @@ public interface EventBus {
     <T> void subscribe(@NotNull Listener<T> listener);
 
     /**
+     * Calls {@link #subscribe(Subscriber)} on all the specified subscribers.
+     *
      * @param subscribers An array of subscribers
-     * @see #subscribe(Subscriber)
      * @since 1.7
      */
     default void subscribeAll(@NotNull Subscriber... subscribers) {
@@ -50,8 +52,9 @@ public interface EventBus {
     }
 
     /**
+     * Calls {@link #subscribe(Subscriber)} on all the specified subscribers.
+     *
      * @param subscribers An iterable of subscribers
-     * @see #subscribe(Subscriber)
      * @since 1.7
      */
     default void subscribeAll(@NotNull Iterable<Subscriber> subscribers) {
@@ -59,8 +62,9 @@ public interface EventBus {
     }
 
     /**
+     * Calls {@link #subscribe(Listener)} on all the specified listeners.
+     *
      * @param listeners An array of listeners
-     * @see #subscribe(Listener)
      * @since 1.9
      */
     default void subscribeAll(@NotNull Listener<?>... listeners) {
@@ -87,8 +91,9 @@ public interface EventBus {
     <T> void unsubscribe(@NotNull Listener<T> listener);
 
     /**
+     * Calls {@link #unsubscribe(Subscriber)} on all the specified subscribers.
+     *
      * @param subscribers An array of subscribers
-     * @see #unsubscribe(Subscriber)
      * @since 1.7
      */
     default void unsubscribeAll(@NotNull Subscriber... subscribers) {
@@ -98,8 +103,9 @@ public interface EventBus {
     }
 
     /**
+     * Calls {@link #unsubscribe(Subscriber)} on all the specified subscribers.
+     *
      * @param subscribers An iterable of subscribers
-     * @see #unsubscribe(Subscriber)
      * @since 1.7
      */
     default void unsubscribeAll(@NotNull Iterable<Subscriber> subscribers) {
@@ -107,8 +113,9 @@ public interface EventBus {
     }
 
     /**
+     * Calls {@link #unsubscribe(Listener)} on all the specified listeners.
+     *
      * @param listeners An array of listeners
-     * @see #unsubscribe(Listener)
      * @since 1.9
      */
     default void unsubscribeAll(@NotNull Listener<?>... listeners) {

@@ -9,6 +9,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.*;
 
 /**
+ * A builder class for {@link EventManager} and {@link AttachableEventManager}. A new instance of this class is created
+ * and returned by {@link EventManager#builder()}. May be used to construct an {@link EventManager} with
+ * {@link #build()}, or get passed to {@link EventManager#EventManager(EventBusBuilder)} when constructing a new
+ * instance or defining a subclass.
+ *
  * @author Brady
  * @since 2.0.0
  */
@@ -145,7 +150,8 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return A newly constructed {@link EventBus} instance using this {@link EventBusBuilder}.
+     * Returns a newly constructed {@link EventBus} instance using this builder.
+     *
      * @since 2.0.0
      */
     @SuppressWarnings("unchecked")
@@ -157,7 +163,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return The name
+     * Returns the name
      * @since 3.0.0
      */
     public String getName() {
@@ -165,7 +171,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return {@code true} if parent class discovery is enabled
+     * Returns {@code true} if parent class discovery is enabled
      * @since 3.0.0
      */
     public boolean isParentDiscovery() {
@@ -173,7 +179,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return {@code true} if super listeners are enabled
+     * Returns {@code true} if super listeners are enabled
      * @since 3.0.0
      */
     public boolean isSuperListeners() {
@@ -181,7 +187,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return An optional containing the exception handler, or {@link Optional#empty()} if none
+     * Returns an optional containing the exception handler, or {@link Optional#empty()} if none
      * @since 3.0.0
      */
     public Optional<ListenerExceptionHandler> getExceptionHandler() {
@@ -189,7 +195,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return The listener list factory
+     * Returns the listener list factory
      * @since 3.0.0
      */
     public @NotNull ListenerListFactory getListenerListFactory() {
@@ -197,7 +203,7 @@ public final class EventBusBuilder<T extends EventBus> {
     }
 
     /**
-     * @return The discovery strategies
+     * Returns the discovery strategies
      * @since 3.0.0
      */
     public @NotNull @UnmodifiableView List<ListenerDiscoveryStrategy> getDiscoveryStrategies() {

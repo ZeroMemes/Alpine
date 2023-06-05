@@ -9,6 +9,8 @@ import java.lang.reflect.TypeVariable;
 import java.util.Objects;
 
 /**
+ * Utility methods relating to Events.
+ *
  * @author Brady
  * @since 3.0.0
  */

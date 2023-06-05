@@ -13,6 +13,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
+ * Utility methods for internal use only with no guarantee of API stability.
+ *
  * @author Brady
  * @since 3.0.0
  */
@@ -40,7 +42,7 @@ public final class Util {
     }
 
     /**
-     * @return The {@code TRUSTED} Lookup instance
+     * Returns the {@code TRUSTED} Lookup instance
      */
     public static MethodHandles.Lookup getLookup() {
         return LOOKUP;

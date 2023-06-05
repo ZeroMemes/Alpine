@@ -21,12 +21,14 @@ public interface Cancellable {
     }
 
     /**
-     * @param cancel Whether to cancel this event
+     * Sets the cancelled state of this event
+     *
+     * @param cancel The new state
      */
     void setCancelled(boolean cancel);
 
     /**
-     * @return Whether the event has been cancelled
+     * Returns whether the event has been cancelled
      */
     boolean isCancelled();
 }
