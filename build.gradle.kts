@@ -1,7 +1,10 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     id("java-library")
     id("maven-publish")
     id("jacoco")
+    id("net.ltgt.errorprone") version "3.1.0"
 }
 
 val typetoolsVersion by extra { "0.6.3" }
@@ -9,6 +12,11 @@ val fastutilVersion by extra { "8.5.12" }
 val annotationsVersion by extra { "24.0.1" }
 val mockitoVersion by extra { "5.3.1" }
 val junitVersion by extra { "5.9.3" }
+
+// 2.11+ requires at least JDK 11. This could be done by cross-compiling to Java 8 bytecode using JDK 11, but I
+// couldn't fix the issue with "sun.misc.Unsafe" being unrecognized when doing so with "--release 8". Maybe it's worth
+// removing usage of Unsafe all together in favor of a supported way of accessing private fields/methods.
+val errorproneVersion by extra { "2.10.0" }
 
 group = "com.github.ZeroMemes"
 version = "3.0.0"
@@ -27,7 +35,7 @@ tasks.jar {
     }
     manifest {
         attributes(mapOf(
-                "Automatic-Module-Name" to "me.zero.alpine"
+            "Automatic-Module-Name" to "me.zero.alpine"
         ), "Alpine")
     }
 }
@@ -46,6 +54,8 @@ dependencies {
     implementation("net.jodah:typetools:$typetoolsVersion")
     api("it.unimi.dsi:fastutil:$fastutilVersion")
     implementation("org.jetbrains:annotations:$annotationsVersion")
+
+    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
 
     testImplementation("org.mockito:mockito-core:$mockitoVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
@@ -67,6 +77,7 @@ tasks {
         javaCompiler.set(project.javaToolchains.compilerFor {
             languageVersion.set(JavaLanguageVersion.of(17))
         })
+        options.errorprone.isEnabled.set(false)
     }
 
     // Setup report for test coverage
