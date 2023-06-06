@@ -1,2 +1,2 @@
 rootProject.name = "Alpine"
-include("example")
+include("alpine-example")
