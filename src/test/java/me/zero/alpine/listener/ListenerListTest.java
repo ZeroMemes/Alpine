@@ -1,12 +1,19 @@
 package me.zero.alpine.listener;
 
+import me.zero.alpine.event.EventPriority;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.concurrent.CopyOnWriteListenerList;
 import me.zero.alpine.listener.concurrent.ReadWriteLockListenerList;
 import me.zero.alpine.listener.concurrent.SynchronizedListenerList;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,18 +29,11 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
 
     @Test
     default void postCallsListener() {
-        EventDispatcher dispatcher = mock(EventDispatcher.class);
-        doAnswer(ctx -> {
-            Iterator<Listener<Object>> it = ctx.getArgument(1);
-            while (it.hasNext()) {
-                it.next().accept(ctx.getArgument(0));
-            }
-            return null;
-        }).when(dispatcher).dispatch(any(), any());
+        final EventDispatcher dispatcher = createMockDispatcher();
 
-        T list = create();
-        Listener<Object> listener = mock(Listener.class);
-        Object event = new Object();
+        final T list = create();
+        final Listener<Object> listener = mock(Listener.class);
+        final Object event = new Object();
 
         list.add(listener);
         list.post(event, dispatcher);
@@ -42,8 +42,8 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
 
     @Test
     default void addReturnsUpdated() {
-        T list = create();
-        Listener<Object> listener = mock(Listener.class);
+        final T list = create();
+        final Listener<Object> listener = mock(Listener.class);
 
         assertTrue(list.add(listener));
         assertFalse(list.add(listener));
@@ -51,13 +51,54 @@ public interface ListenerListTest<T extends ListenerList<Object>> {
 
     @Test
     default void removeReturnsUpdated() {
-        T list = create();
-        Listener<Object> listener = mock(Listener.class);
+        final T list = create();
+        final Listener<Object> listener = mock(Listener.class);
 
         assertFalse(list.remove(listener));
         list.add(listener);
         assertTrue(list.remove(listener));
         assertFalse(list.remove(listener));
+    }
+
+    @Test
+    default void listenersAreSorted() {
+        final EventDispatcher dispatcher = createMockDispatcher();
+
+        final List<Listener<Object>> listeners = Stream.of(
+            EventPriority.HIGHEST,
+            EventPriority.HIGH,
+            EventPriority.MEDIUM,
+            EventPriority.LOW,
+            EventPriority.LOWEST
+        ).map(priority -> spy(new Listener<>(e -> {}, priority))).collect(Collectors.toList());
+
+        final T list = create();
+
+        // Add the listeners to the list in a random order
+        final List<Listener<Object>> shuffled = new ArrayList<>(listeners);
+        Collections.shuffle(shuffled);
+        shuffled.forEach(list::add);
+
+        final InOrder inOrder = inOrder(listeners.toArray());
+
+        final Object event = new Object();
+        list.post(event, dispatcher);
+
+        for (Listener<Object> listener : listeners) {
+            inOrder.verify(listener, times(1)).accept(event);
+        }
+    }
+
+    static EventDispatcher createMockDispatcher() {
+        final EventDispatcher dispatcher = mock(EventDispatcher.class);
+        doAnswer(ctx -> {
+            Iterator<Listener<Object>> it = ctx.getArgument(1);
+            while (it.hasNext()) {
+                it.next().accept(ctx.getArgument(0));
+            }
+            return null;
+        }).when(dispatcher).dispatch(any(), any());
+        return dispatcher;
     }
 
     class ArrayListTest implements ListenerListTest<ListenerArrayList<Object>> {
