@@ -1,5 +1,6 @@
 package me.zero.alpine.listener;
 
+import me.zero.alpine.bus.EventBusBuilder;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,11 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
+ * A {@link ListenerList} which may have children {@link ListenerGroup} instances {@link #addChild added}, allowing
+ * their listeners to be invoked non-recursively. This is used to create a structure of lists which mimicks the
+ * flattened class hierarchy of an event class, and is utilized by the {@link EventBusBuilder#isSuperListeners()}
+ * setting.
+ *
  * @author Brady
  * @since 3.0.0
  */

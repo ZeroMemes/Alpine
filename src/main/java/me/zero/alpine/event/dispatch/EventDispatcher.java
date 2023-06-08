@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Objects;
 
 /**
+ * Dispatches an event to all Listeners of a given iterator.
+ *
  * @author Brady
  * @since 3.0.0
  */
@@ -15,7 +17,7 @@ import java.util.Objects;
 public interface EventDispatcher {
 
     /**
-     * Dispatches the specified event over all Listeners in the specified {@link Iterator} via {@link Listener#accept}.
+     * Dispatches the specified event to all Listeners in the specified {@link Iterator} via {@link Listener#accept}.
      * Whether this is done synchronously or asynchronously, as well as the routine for handling exceptions is entirely
      * implementation-dependent.
      *

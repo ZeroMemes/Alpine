@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
+ * A collection of {@link Listener} instances, ordered by {@link Listener#getPriority() priority}. Supports the minimal
+ * operations of {@link #add}, {@link #remove}, and posting an event to all listeners via {@link #post}. Thread-safe
+ * wrappers over existing {@link ListenerList} instances may be created via the utility methods provided in this
+ * interface, or created from one of the implementations in {@link me.zero.alpine.listener.concurrent concurrent}.
+ *
  * @author Brady
  * @since 3.0.0
  */

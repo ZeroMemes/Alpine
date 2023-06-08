@@ -6,10 +6,14 @@ import me.zero.alpine.listener.ListenerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
+ * A wrapper implementation of {@link ListenerList} which uses a {@link ReadWriteLock} for synchronization.
+ *
  * @author Brady
+ * @see ListenerList#readWriteLock(ListenerList)
  * @since 3.0.0
  */
 public final class ReadWriteLockListenerList<T> implements ListenerList<T> {

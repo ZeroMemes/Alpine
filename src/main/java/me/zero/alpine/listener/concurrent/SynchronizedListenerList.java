@@ -8,7 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
+ * A wrapper implementation of {@link ListenerList} which uses a mutex object for synchronization.
+ *
  * @author Brady
+ * @see ListenerList#synchronize
  * @since 3.0.0
  */
 public final class SynchronizedListenerList<T> implements ListenerList<T> {

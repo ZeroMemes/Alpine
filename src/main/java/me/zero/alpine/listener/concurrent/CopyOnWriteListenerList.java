@@ -1,5 +1,6 @@
 package me.zero.alpine.listener.concurrent;
 
+import me.zero.alpine.bus.EventManager;
 import me.zero.alpine.event.dispatch.EventDispatcher;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.ListenerList;
@@ -9,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 /**
+ * A {@link ListenerList} which uses copy-on-write semantics to support thread safety. However, this may cause a race
+ * condition in applications that rely on cleanup code after calling {@link EventManager#unsubscribe}, since it will
+ * not wait for {@link EventManager#post} to complete, and the old Listeners array may be dispatched to.
+ *
  * @author Brady
  * @since 3.0.0
  */

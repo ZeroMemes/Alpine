@@ -10,6 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
+ * A class-level reference to any number of Listeners.
+ *
  * @author Brady
  * @since 3.0.0
  */
