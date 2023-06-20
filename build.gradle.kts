@@ -19,7 +19,7 @@ val junitVersion by extra { "5.9.3" }
 val errorproneVersion by extra { "2.10.0" }
 
 group = "com.github.ZeroMemes"
-version = "3.0.1"
+version = "3.0.2-SNAPSHOT"
 
 java {
     toolchain {
