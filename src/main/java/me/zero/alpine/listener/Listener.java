@@ -117,6 +117,7 @@ public final class Listener<@NotNull T> implements Consumer<T>, Comparable<Liste
      *                               target should be explicitly specified.
      * @throws IllegalStateException If the event target can't be automatically resolved from the callback
      */
+    @SuppressWarnings("unchecked")
     @SafeVarargs
     public Listener(@Nullable Class<T> target, @NotNull Consumer<T> callback, int priority, @NotNull Predicate<? super T>... filters) {
         this.callback = Util.predicated(callback, filters);
