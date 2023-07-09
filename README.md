@@ -30,7 +30,7 @@ Alternatively, the [GitHub package](https://github.com/ZeroMemes/Alpine/packages
 
 ```gradle
 dependencies {
-    compile 'com.github.ZeroMemes:Alpine:3.0.1'
+    compile 'com.github.ZeroMemes:Alpine:3.0.2'
 }
 ```
 
@@ -41,7 +41,7 @@ dependencies {
 <dependency>
     <groupId>com.github.ZeroMemes</groupId>
     <artifactId>Alpine</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
 </dependency>
 ```
 
