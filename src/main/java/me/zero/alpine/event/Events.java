@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Objects;
 
 /**
@@ -34,7 +35,13 @@ public final class Events {
             throw new EventTypeException("Listener target cannot be a type variable");
         }
         if (type instanceof ParameterizedType) {
-            throw new EventTypeException("Listener target cannot be a generic type");
+            final ParameterizedType parameterized = (ParameterizedType) type;
+            for (Type arg : parameterized.getActualTypeArguments()) {
+                if (!(arg instanceof WildcardType)) {
+                    throw new EventTypeException("Generic targets can only contain wildcards");
+                }
+            }
+            return validateEventType((Class<?>) parameterized.getRawType());
         }
         if (!(type instanceof Class)) {
             throw new EventTypeException("Unable to resolve Listener target class (Unrecognized " + type.getClass() + ")");
@@ -57,10 +64,6 @@ public final class Events {
      */
     public static <T> Class<T> validateEventType(@NotNull Class<T> type) {
         Objects.requireNonNull(type);
-        // Make sure that it doesn't have any type parameters that were omitted, avoiding the other checks.
-        if (type.getTypeParameters().length != 0) {
-            throw new EventTypeException("Listener target cannot be a generic type");
-        }
         if (type.isPrimitive()) {
             throw new EventTypeException("Listener target cannot be a primitive");
         }
