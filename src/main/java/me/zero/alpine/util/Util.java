@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * Utility methods for internal use only with no guarantee of API stability.
@@ -102,7 +101,7 @@ public final class Util {
         }
     }
 
-    public static <T> T catchAndRethrow(Supplier<T> function, Function<Throwable, ? extends RuntimeException> wrapper) {
+    public static <T> T catchAndRethrow(ThrowableSupplier<T> function, Function<Throwable, ? extends RuntimeException> wrapper) {
         try {
             return function.get();
         } catch (Throwable cause) {
@@ -147,5 +146,10 @@ public final class Util {
 
         HIERARCHY_CACHE.put(cls, flattened);
         return flattened;
+    }
+
+    @FunctionalInterface
+    public interface ThrowableSupplier<T> {
+        T get() throws Throwable;
     }
 }

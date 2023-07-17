@@ -3,6 +3,7 @@ package me.zero.alpine.listener.discovery;
 import me.zero.alpine.event.Events;
 import me.zero.alpine.exception.ListenerBindException;
 import me.zero.alpine.exception.ListenerDiscoveryException;
+import me.zero.alpine.exception.ListenerFilterException;
 import me.zero.alpine.exception.ListenerMethodException;
 import me.zero.alpine.listener.Listener;
 import me.zero.alpine.listener.Subscribe;
@@ -19,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -57,6 +59,23 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
             cause -> new ListenerDiscoveryException("Couldn't validate event type", cause)
         );
 
+        final Class<? extends Predicate<? super T>>[] filterTypes =
+            (Class<? extends Predicate<? super T>>[]) method.getAnnotation(Subscribe.class).filters();
+
+        final Predicate<? super T>[] filters = Arrays.stream(filterTypes).map(type -> {
+            final MethodHandles.Lookup lookup = Util.getLookup().in(type);
+            final MethodHandle constructor = Util.catchAndRethrow(
+                () -> lookup.findConstructor(type, MethodType.methodType(void.class)),
+                cause -> new ListenerFilterException("Filter class requires a no-arg constructor", cause)
+            );
+            return (Predicate<? super T>) Util.catchAndRethrow(
+                constructor::invoke,
+                cause -> new ListenerFilterException("Unable to construct filter", cause)
+            );
+        }).toArray(Predicate[]::new);
+
+        final int priority = method.getAnnotation(Subscribe.class).priority();
+
         // Create a lazily-initialized factory for providing Consumers bound to the target method
         final Callable<MethodHandle> factory = Util.lazy(() -> {
             // Create a lookup in the owner class
@@ -76,8 +95,8 @@ enum ListenerMethodDiscoveryStrategy implements ListenerDiscoveryStrategy {
                 // Bind the instance to the event callback method using the factory
                 final Consumer<T> callback = (Consumer<T>) factory.call().invoke(instance);
 
-                // TODO: Caching?, Filters, Priority, etc.
-                return new Listener<>(target, callback);
+                // TODO: Caching?
+                return new Listener<>(target, callback, priority, filters);
             } catch (Throwable e) {
                 throw new ListenerBindException("Unable to bind Listener method", e);
             }

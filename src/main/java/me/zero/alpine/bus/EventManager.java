@@ -158,7 +158,7 @@ public class EventManager implements EventBus {
 
     private <T> ListenerList<T> getOrCreateListenerList(Class<T> target) {
         // This method of initialization results in much faster dispatch than 'computeIfAbsent'
-        // It also guarantees that only one thread can call 'createListenerList' at a time
+        // It also guarantees that only one thread can call 'listenerListFactory.create(...)' at a time
         final ListenerList<T> existing = this.activeListeners.get(target);
         if (existing != null) {
             return existing;
