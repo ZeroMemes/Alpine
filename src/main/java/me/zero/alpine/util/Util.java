@@ -101,7 +101,7 @@ public final class Util {
         }
     }
 
-    public static <T> T catchAndRethrow(ThrowableSupplier<T> function, Function<Throwable, ? extends RuntimeException> wrapper) {
+    public static <T> T catchAndRethrow(ThrowingSupplier<T> function, Function<Throwable, ? extends RuntimeException> wrapper) {
         try {
             return function.get();
         } catch (Throwable cause) {
@@ -149,7 +149,7 @@ public final class Util {
     }
 
     @FunctionalInterface
-    public interface ThrowableSupplier<T> {
+    public interface ThrowingSupplier<T> {
         T get() throws Throwable;
     }
 }
